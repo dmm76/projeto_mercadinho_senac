@@ -19,7 +19,7 @@ final class Database
                 $_ENV['DB_NAME'] ?? 'mercadinho'
             );
             $user = $_ENV['DB_USER'] ?? 'root';
-            $pass = $_ENV['DB_PASS'] ?? 'Debase33@';
+            $pass = $_ENV['DB_PASS'] ?? '';
 
             self::$pdo = new PDO($dsn, $user, $pass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
