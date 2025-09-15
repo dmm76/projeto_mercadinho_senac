@@ -1,0 +1,56 @@
+body {
+  min-width: 372px;
+}
+.wrapper {
+  min-height: 100vh;
+}
+
+.wrapperform {
+  min-height: 76vh;
+}
+
+.carousel-img {
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.produto-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+p.truncar-3l {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+label:hover .text-dark {
+  transition: color 0.2s ease;
+  color: red !important;
+}
+
+label .text-dark {
+  transition: color 0.2s ease;
+}
+
+.btn-check:checked + .btn-outline-danger .text-dark,
+.btn-check:active + .btn-outline-danger .text-dark,
+.btn-check:hover + .btn-outline-danger .text-dark {
+  transition: color 0.2s ease;
+  color: white !important;
+}
+
+.flex-even {
+  flex: 1;
+  min-width: 300px;
+}
+
+.accordion-button:not(.collapsed) {
+  color: white;
+  background-color: red;
+}

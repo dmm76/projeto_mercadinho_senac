@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Mercadinho</title>
+  </head>
+  <body>
+    <div class="d-flex flex-column wrapper">
+      <nav
+        class="navbar navbar-expand-lg navbar-dark bg-danger border-bottom shadow-sn mb-3 py-3"
+      >
+        <div class="container">
+          <a class="navbar-brand text-white" href="./index.html"
+            >Mercadinho Borba Gato</a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target=".navbar-collapse"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
+              <li class="nav-item">
+                <a href="./index.html" class="nav-link text-white">Principal</a>
+              </li>
+              <li class="nav-item">
+                <a href="./contato.html" class="nav-link text-white">Contato</a>
+              </li>
+            </ul>
+            <div class="align-self-end">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a href="./cadcli.html" class="nav-link text-white">
+                    Logado com <strong>Douglas Monquero</strong>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="./index.html" class="nav-link text-white">Sair</a>
+                </li>
+                <li class="nav-item">
+                  <span
+                    class="badge rounded-pill bg-light text-danger position-absolute ms-4 mt-0"
+                  >
+                    <small>5</small>
+                  </span>
+                  <a href="./carrinho.html" class="nav-link text-white">
+                    <img
+                      src="./img/cart.svg"
+                      alt="Carrinho"
+                      style="width: 24px; height: 24px"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <!-- MAIN -->
+      <main class="flex-fill">
+        <div class="container">
+          <h1>Selecione a Forma de Pagamento</h1>
+          <h3 class="mb-4">
+            Selecione a forma de pagamento e clique em
+            <b>Continuar</b>
+            para prosseguir e
+            <b>Concluir o pedido</b>
+          </h3>
+          <div
+            class="d-flex justify-content-between flex-wrap border rounded-top pt-4 px-3"
+          >
+            <div class="mb-4 mx-2 flex-even">
+              <input
+                type="radio"
+                class="btn-check"
+                name="pagamento"
+                id="pag1"
+                autocomplete="off"
+                checked
+              />
+              <label class="btn btn-outline-danger p4 h-100 w-100" for="pag1">
+                <h3>
+                  <b class="text-dark">Cartão de Crédito</b>
+                </h3>
+                <br />
+                <hr />
+                <form action="">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      id="txtNome"
+                      class="form-control"
+                      placeholder=""
+                      autofocus
+                    />
+                    <label for="txtNome" class="text-black-50"
+                      >Nome Impresso no Cartão</label
+                    >
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      id="txtNumero"
+                      class="form-control"
+                      placeholder=""
+                    />
+                    <label for="txtNumero" class="text-black-50"
+                      >Número do Cartão</label
+                    >
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      id="txtValidade"
+                      class="form-control"
+                      placeholder=""
+                    />
+                    <label for="txtValidade" class="text-black-50"
+                      >Validade (mm/aa)</label
+                    >
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      id="txtCodigo"
+                      class="form-control"
+                      placeholder=""
+                    />
+                    <label for="txtCodigo" class="text-black-50"
+                      >Código de Segurança</label
+                    >
+                  </div>
+                  <div class="form-floating">
+                    <select id="selParcelas" class="form-select">
+                      <option value="1">À vista</option>
+                      <option value="2">2 x sem juros</option>
+                      <option value="3">3 x sem juros</option>
+                      <option value="4">4 x sem juros</option>
+                      <option value="5">5 x sem juros</option>
+                      <option value="6">6 x sem juros</option>
+                    </select>
+                    <label for="selParcelas" class="text-black-50"
+                      >Parcelamento</label
+                    >
+                  </div>
+                </form>
+              </label>
+            </div>
+            <div class="mb-4 mx-2 flex-even">
+              <input
+                type="radio"
+                class="btn-check"
+                name="pagamento"
+                id="pag2"
+                autocomplete="off"
+                checked
+              />
+              <label class="btn btn-outline-danger p4 h-100 w-100" for="pag2">
+                <h3>
+                  <b class="text-dark">Dinheiro</b>
+                </h3>
+                <br />
+                <hr />
+                <form action="">
+                  <h4>Valor da Compra: <b>R$ 63,86</b></h4>
+                  <br />
+                  <p>Se precisar de troco, informe no campo abaixo</p>
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      id="txtTroco"
+                      class="form-control"
+                      placeholder=""
+                    />
+                    <label for="txtTroco" class="text-black-50"
+                      >Precisa de troco para qual valor?</label
+                    >
+                  </div>
+                </form>
+              </label>
+            </div>
+          </div>
+          <div class="text-end border border-top-0 rounded-bottom p-3 pb-1">
+            <a
+              href="./fechamento_endereco.html"
+              class="btn btn-outline-success btn-lg mb-3"
+            >
+              Voltar aos Endereços
+            </a>
+            <a
+              href="./fechamento_pedido.html"
+              class="btn btn-danger btn-lg ms-2 mb-3"
+            >
+              Finalizar
+            </a>
+          </div>
+        </div>
+      </main>
+      <!-- FOOTER -->
+      <footer class="bg-danger text-white border-top shadow-sm py-3">
+        <div class="container">
+          <div class="row text-center">
+            <div class="col-sm">
+              Atendimento: (44) 3259-1533
+              <br />
+              Aberto até as 20:00
+            </div>
+            <div class="col-sm">
+              Endereço: R. das Tipuanas, 250, Borba Gato - Conj. Hab. Inocente
+              Vila Nova Júnior, Maringá - PR, 87060-130
+            </div>
+            <div class="col-sm">© 2025 Mercadinho Borba Gato</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

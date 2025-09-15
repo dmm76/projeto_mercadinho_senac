@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Mercadinho</title>
+  </head>
+  <body>
+    <div class="d-flex flex-column wrapper">
+      <nav
+        class="navbar navbar-expand-lg navbar-dark bg-danger border-bottom shadow-sn mb-3 py-3"
+      >
+        <div class="container">
+          <a class="navbar-brand text-white" href="./index.html">Mercadinho Borba Gato</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target=".navbar-collapse"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
+              <li class="nav-item">
+                <a href="./index.html" class="nav-link text-white">Principal</a>
+              </li>
+              <li class="nav-item">
+                <a href="./contato.html" class="nav-link text-white">Contato</a>
+              </li>
+            </ul>
+            <div class="align-self-end">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a href="#" class="nav-link text-white" data-bs-toggle="modal" data-bs-target="#modalCadastro">Quero Me Cadastrar</a>
+                </li>
+                <li class="nav-item">
+                  <a href="./login.html" class="nav-link text-white">Entrar</a>
+                </li>
+                <li class="nav-item">
+                  <span
+                    class="badge rounded-pill bg-light text-danger position-absolute ms-4 mt-0"
+                  >
+                    <small>5</small>
+                  </span>
+                  <a href="./carrinho.html" class="nav-link text-white">
+                    <img
+                      src="./img/cart.svg"
+                      alt="Carrinho"
+                      style="width: 24px; height: 24px"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <!-- MAIN -->
+      <main class="flex-fill">
+        <div class="container">
+          <!-- Carrosel -->
+          <div
+            id="carouselExampleIndicators"
+            class="carousel slide"
+            data-bs-ride="carousel"
+            data-bs-interval="5000"
+          >
+            <div class="carousel-indicators">
+              <button
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide-to="0"
+                class="active"
+                aria-current="true"
+                aria-label="Slide 1"
+              ></button>
+              <button
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide-to="1"
+                aria-label="Slide 2"
+              ></button>
+              <button
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide-to="2"
+                aria-label="Slide 3"
+              ></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img
+                  src="./img/banner.jpg"
+                  class="d-block w-100 carousel-img"
+                  alt="Promoçoes"
+                />
+              </div>
+              <div class="carousel-item">
+                <img
+                  src="./img/banca.jpg"
+                  class="d-block w-100 carousel-img"
+                  alt="Frutas Novas todos os dias"
+                />
+              </div>
+              <div class="carousel-item">
+                <img
+                  src="./img/compras01.jpg"
+                  class="d-block w-100 carousel-img"
+                  alt="Clientes satisfeitos"
+                />
+              </div>
+            </div>
+            <button
+              class="carousel-control-prev"
+              type="button"
+              data-bs-target="#carouselExampleIndicators"
+              data-bs-slide="prev"
+            >
+              <span
+                class="carousel-control-prev-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button
+              class="carousel-control-next"
+              type="button"
+              data-bs-target="#carouselExampleIndicators"
+              data-bs-slide="next"
+            >
+              <span
+                class="carousel-control-next-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+          <hr class="mt-3" />
+          <!-- Região de Pesquisa Central -->
+          <div class="container mt-3">
+            <div class="row">
+              <div class="col-12 col-md-5">
+                <form
+                  class="justify-content-center justify-content-md-start mb-3 mb-md-0"
+                >
+                  <div class="input-group input-group-sm">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Digite aqui o que procura"
+                    />
+                    <button class="btn btn-danger">Buscar</button>
+                  </div>
+                </form>
+              </div>
+              <div class="col-12 col-md-7">
+                <div
+                  class="d-flex flex-row-reverse justify-content-center justify-content-md-start"
+                >
+                  <form class="inline-block">
+                    <select class="form-select form-select-sm">
+                      <option>Ordenar pelo nome</option>
+                      <option>Ordenar pelo menor preço</option>
+                      <option>Ordenar pelo maior preço</option>
+                    </select>
+                  </form>
+                  <nav class="d-inline-block me-3">
+                    <ul class="pagination pagination-sm my-0>
+                      <li class="page-item">
+                        <a class="page-link" href="#">1</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                      </li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">3</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">4</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">5</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">6</a>
+                      </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <!-- Produtos -->
+          <div class="row g-3">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+                 <a href="./produto.html">
+                  <img src="./img/Banana Prata/banana_orig.webp" class="card-img-top">
+                 </a>
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Banana Prata</h5>
+                <p class="card-text truncar-3l">A banana-prata é uma das variedades mais apreciadas no Brasil, conhecida por seu sabor levemente adocicado e textura mais firme em comparação com outras bananas </p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+              <div class="card text-center bg-light my-3">
+                <!-- add o coracao favorito -->
+                 <a href="#" class="position-absolute end-0 p-2 text-danger">
+                  <i
+                    class="bi bi-heart favorito-icon text-danger position-absolute top-0 end-0 m-2"
+                    style="cursor: pointer; font-size: 24px"
+                  ></i>
+                 </a>
+              <img src="./img/paes.jpg" class="card-img-top">
+              <!-- adicionando um cabeçalho para a imagem -->
+               <div class="card-header">
+                R$ 13,50
+               </div>
+              <div class="card-body">
+                <h5 class="card-title">Pães</h5>
+                <p class="card-text truncar-3l">Sinta o aroma e o sabor do pão feito na hora. Qualidade, tradição e frescor em cada mordida.</p>                
+              </div>
+              <!-- removendo o botao do corpo do card e add card-footer -->
+               <div class="card-footer">
+                <a href="./carrinho.html" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
+                <small class="text-sucess">320,5kg em estoque</small>
+               </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        <script src="./bootstrap/js/bootstrap.bundle.min.js"></script>
+      </main>
+      <!-- FOOTER -->
+      <footer class="bg-danger text-white border-top shadow-sm py-3">
+        <div class="container">
+          <div class="row text-center">
+            <div class="col-sm">
+              Atendimento: (44) 3259-1533
+              <br />
+              Aberto até as 20:00
+            </div>
+            <div class="col-sm">
+              Endereço: R. das Tipuanas, 250, Borba Gato - Conj. Hab. Inocente
+              Vila Nova Júnior, Maringá - PR, 87060-130
+            </div>
+            <div class="col-sm">© 2025 Mercadinho Borba Gato</div>
+          </div>
+        </div>
+      </footer>
+    </div>    
+  </body>
+</html>

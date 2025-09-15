@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Mercadinho</title>
+  </head>
+  <body>
+    <div class="d-flex flex-column wrapper">
+      <nav
+        class="navbar navbar-expand-lg navbar-dark bg-danger border-bottom shadow-sn mb-3 py-3"
+      >
+        <div class="container">
+          <a class="navbar-brand text-white" href="./index.html"
+            >Mercadinho Borba Gato</a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target=".navbar-collapse"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
+              <li class="nav-item">
+                <a href="./index.html" class="nav-link text-white">Principal</a>
+              </li>
+              <li class="nav-item">
+                <a href="./contato.html" class="nav-link text-white">Contato</a>
+              </li>
+            </ul>
+            <div class="align-self-end">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a
+                    href="#"
+                    class="nav-link text-white"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCadastro"
+                    >Quero Me Cadastrar</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a href="./login.html" class="nav-link text-white">Entrar</a>
+                </li>
+                <li class="nav-item">
+                  <span
+                    class="badge rounded-pill bg-light text-danger position-absolute ms-4 mt-0"
+                  >
+                    <small>5</small>
+                  </span>
+                  <a href="./carrinho.html" class="nav-link text-white">
+                    <img
+                      src="./img/cart.svg"
+                      alt="Carrinho"
+                      style="width: 24px; height: 24px"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <!-- MAIN -->
+      <main class="container mb-5 wrapperform">
+        <h2 class="mb-4">Cadastro de Cliente</h2>
+        <form id="formCliente" class="row g-3">
+          <div class="col-md-6">
+            <label for="inputNome" class="form-label">Nome</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputNome"
+              name="nome"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputSobrenome" class="form-label">Sobrenome</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputSobrenome"
+              name="sobrenome"
+              placeholder="Digite seu sobrenome"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputEmail" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="inputEmail"
+              name="email"
+              placeholder="exemplo@email.com"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputSenha" class="form-label">Senha</label>
+            <input
+              type="password"
+              class="form-control"
+              id="inputSenha"
+              name="senha"
+              placeholder="********"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <label for="inputEndereco" class="form-label">Endereço</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputEndereco"
+              name="endereco"
+              placeholder="Avenida da Patria, nº 22"
+              required
+            />
+          </div>
+          <div class="col-6">
+            <label for="inputEndereco2" class="form-label">Complemento</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputEndereco2"
+              name="complemento"
+              placeholder="Apartamento, casa, etc."
+            />
+          </div>
+          <div class="col-6">
+            <label for="inputTelefone" class="form-label">Telefone</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="inputTelefone"
+              name="telefone"
+              placeholder="(44) 99999-9999"
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputCidade" class="form-label">Cidade</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputCidade"
+              name="cidade"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <label for="inputEstado" class="form-label">Estado</label>
+            <select id="inputEstado" name="estado" class="form-select" required>
+              <option selected disabled value="">Escolher...</option>
+              <option>PR</option>
+              <option>SC</option>
+              <option>SP</option>
+              <option>RJ</option>
+              <option>MG</option>
+              <!-- Outros estados -->
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label for="inputCEP" class="form-label">CEP</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputCEP"
+              name="cep"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="aceiteTermos"
+                required
+              />
+              <label class="form-check-label" for="aceiteTermos">
+                Concordo com os termos e condições
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-danger">Cadastrar</button>
+          </div>
+        </form>
+      </main>
+      <!-- FOOTER -->
+      <footer class="bg-danger text-white border-top shadow-sm py-3">
+        <div class="container">
+          <div class="row text-center">
+            <div class="col-sm">
+              Atendimento: (44) 3259-1533
+              <br />
+              Aberto até as 20:00
+            </div>
+            <div class="col-sm">
+              Endereço: R. das Tipuanas, 250, Borba Gato - Conj. Hab. Inocente
+              Vila Nova Júnior, Maringá - PR, 87060-130
+            </div>
+            <div class="col-sm">© 2025 Mercadinho Borba Gato</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

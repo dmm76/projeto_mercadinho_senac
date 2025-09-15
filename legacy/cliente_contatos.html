@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Mercadinho :: Área Adminstrativa</title>
+  </head>
+  <body>
+    <div class="d-flex flex-column wrapper">
+      <nav
+        class="navbar navbar-expand-lg navbar-dark bg-danger border-bottom shadow-sn mb-3 py-3"
+      >
+        <div class="container">
+          <a class="navbar-brand text-white" href="./index.html"
+            >Mercadinho Borba Gato</a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target=".navbar-collapse"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav flex-grow-1">
+              <li class="nav-item">
+                <a href="./index.html" class="nav-link text-white">Principal</a>
+              </li>
+              <li class="nav-item">
+                <a href="./contato.html" class="nav-link text-white">Contato</a>
+              </li>
+              <li class="nav-item">
+                <a href="./pdv.html" class="nav-link text-white"
+                  >Ponto de Vendas</a
+                >
+              </li>
+            </ul>
+            <div class="align-self-end">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a href="./cliente_pedidos.html" class="nav-link text-white"
+                    >Logado como <strong>Douglas Monquero</strong></a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a href="./index.html" class="nav-link text-white">Sair</a>
+                </li>
+                <li class="nav-item">
+                  <span
+                    class="badge rounded-pill bg-light text-danger position-absolute ms-4 mt-0"
+                  >
+                    <small>5</small>
+                  </span>
+                  <a href="./carrinho.html" class="nav-link text-white">
+                    <img
+                      src="./img/cart.svg"
+                      alt="Carrinho"
+                      style="width: 24px; height: 24px"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <!-- MAIN -->
+      <main class="flex-fill">
+        <div class="container">
+          <h1>Minha Conta</h1>
+          <div class="row gx-3">
+            <div class="col-4">
+              <div class="list-group">
+                <a
+                  href="./cliente_admin.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-person fs-6">Administrativo</i>
+                </a>
+                <a
+                  href="./cliente_dados.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-person fs-6">Dados Pessoais</i>
+                </a>
+                <a
+                  href="./cliente_contatos.html"
+                  class="list-group-item list-group-item-action bg-danger text-light"
+                >
+                  <i class="bi-mailbox fs-6">Contatos</i>
+                </a>
+                <a
+                  href="./cliente_endereco.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-house-door fs-6">Endereços</i>
+                </a>
+                <a
+                  href="./cliente_pedidos.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-truck fs-6">Pedidos</i>
+                </a>
+                <a
+                  href="./cliente_favoritos.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-heart fs-6">Favoritos</i>
+                </a>
+                <a
+                  href="./cliente_senha.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-lock fs-6">Alterar Senha</i>
+                </a>
+                <a
+                  href="./index.html.html"
+                  class="list-group-item list-group-item-action"
+                >
+                  <i class="bi-door-open fs-6">Sair</i>
+                </a>
+              </div>
+            </div>
+            <div class="col-8">
+              <form action="">
+                <div class="form-floating mb-3 col-md-8">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="txtEmail"
+                    placeholder=""
+                    autofocus
+                  />
+                  <label for="txtEmail">Email</label>
+                </div>
+                <div class="form-floating mb-3 col-md-6">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="txtTelefone"
+                    placeholder=""
+                  />
+                  <label for="txtTelefone">Telefone</label>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- FOOTER -->
+      <footer class="bg-danger text-white border-top shadow-sm py-3">
+        <div class="container">
+          <div class="row text-center">
+            <div class="col-sm">
+              Atendimento: (44) 3259-1533
+              <br />
+              Aberto até as 20:00
+            </div>
+            <div class="col-sm">
+              Endereço: R. das Tipuanas, 250, Borba Gato - Conj. Hab. Inocente
+              Vila Nova Júnior, Maringá - PR, 87060-130
+            </div>
+            <div class="col-sm">© 2025 Mercadinho Borba Gato</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
