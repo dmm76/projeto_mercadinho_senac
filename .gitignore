@@ -1,0 +1,7 @@
+/storage/tmp/
+/storage/*.log
+/vendor/
+node_modules/
+/.idea/
+/.vscode/
+.env
