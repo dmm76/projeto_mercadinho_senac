@@ -21,27 +21,27 @@ final class ContaController extends BaseContaController
 
         $totalPedidos = 0;
         $qtdEnderecos = 0;
+
+        // Contagem do carrinho baseada na estrutura atual
+        $cart = $_SESSION['carrinho'] ?? [];
+        $cartCount = is_array($cart)
+            ? array_reduce($cart, fn($sum, $it) => $sum + (float)($it['quantidade'] ?? 0), 0)
+            : 0;
+
         $ultimosPedidos = [];
-        $cartCount = (int)($_SESSION['cart_count'] ?? 0);
 
         if ($clienteId) {
             $st1 = $pdo->prepare('SELECT COUNT(*) FROM pedido WHERE cliente_id = ?');
             $st1->execute([$clienteId]);
             $totalPedidos = (int)$st1->fetchColumn();
 
-            // usa codigo_externo
             $st2 = $pdo->prepare('SELECT id, codigo_externo AS codigo, status, total, criado_em
                                   FROM pedido
                                   WHERE cliente_id = ?
                                   ORDER BY id DESC
                                   LIMIT 5');
             $st2->execute([$clienteId]);
-            $ultimosPedidos = $st2->fetch(PDO::FETCH_ASSOC) ? $st2->fetchAll(PDO::FETCH_ASSOC) : ($st2->fetchAll(PDO::FETCH_ASSOC) ?: []);
-
-            if (!$ultimosPedidos) {
-                $st2->execute([$clienteId]);
-                $ultimosPedidos = $st2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            }
+            $ultimosPedidos = $st2->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
             $st3 = $pdo->prepare('SELECT COUNT(*) FROM endereco WHERE cliente_id = ?');
             $st3->execute([$clienteId]);
@@ -72,59 +72,59 @@ final class ContaController extends BaseContaController
         $st->execute([$clienteId]);
         $pedidos = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-        $this->render('conta/pedidos', compact('pedidos'));
+        $this->render('conta/pedidos/index', compact('pedidos'));
     }
 
     public function verPedidoQuery(): void
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
-            \App\Core\Flash::set('error', 'Pedido inválido.');
+            Flash::set('error', 'Pedido inválido.');
             $this->redirect('/conta/pedidos');
         }
         $this->verPedido($id);
     }
 
-    // DETALHE (GET /conta/pedidos/123)
+    // DETALHE (GET /conta/pedidos/{id})
     public function verPedido(int $id): void
     {
-        $pdo = \App\DAO\Database::getConnection();
+        $pdo = Database::getConnection();
         $clienteId = $this->clienteIdOrFail();
 
         // Cabeçalho do pedido
         $cab = $pdo->prepare(
             'SELECT id,
-                codigo_externo AS codigo,
-                status, entrega, pagamento,
-                subtotal, frete, desconto, total, criado_em
-         FROM pedido
-         WHERE id = ? AND cliente_id = ?
-         LIMIT 1'
+                    codigo_externo AS codigo,
+                    status, entrega, pagamento,
+                    subtotal, frete, desconto, total, criado_em
+               FROM pedido
+              WHERE id = ? AND cliente_id = ?
+              LIMIT 1'
         );
         $cab->execute([$id, $clienteId]);
-        $pedido = $cab->fetch(\PDO::FETCH_ASSOC);
+        $pedido = $cab->fetch(PDO::FETCH_ASSOC);
 
         if (!$pedido) {
-            \App\Core\Flash::set('error', 'Pedido não encontrado.');
+            Flash::set('error', 'Pedido não encontrado.');
             $this->redirect('/conta/pedidos');
         }
 
-        // Itens (tabela item_pedido conforme seu schema: preco_unit, desconto_unit)
+        // Itens do pedido
         $sti = $pdo->prepare('
-        SELECT ip.produto_id,
-                p.nome,
-                ip.quantidade,
-                ip.preco_unit AS preco,
-                (ip.quantidade * ip.preco_unit) AS subtotal
-        FROM item_pedido ip
-        JOIN produto p ON p.id = ip.produto_id
-        WHERE ip.pedido_id = ?
-        ORDER BY ip.id ASC
+            SELECT ip.produto_id,
+                   p.nome,
+                   ip.quantidade,
+                   ip.preco_unit AS preco,
+                   (ip.quantidade * ip.preco_unit) AS subtotal
+              FROM item_pedido ip
+              JOIN produto p ON p.id = ip.produto_id
+             WHERE ip.pedido_id = ?
+          ORDER BY ip.id ASC
         ');
         $sti->execute([$id]);
-        $itens = $sti->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        $itens = $sti->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-        $this->render('conta/pedido_detalhe', compact('pedido', 'itens'));
+        $this->render('conta/pedidos/ver', compact('pedido', 'itens'));
     }
 
     /* ========= DADOS DO CLIENTE ========= */
@@ -135,14 +135,14 @@ final class ContaController extends BaseContaController
         $u = Auth::user();
 
         $cliente = [];
-        $clienteId = Auth::clienteId(); // já cria se não existir
+        $clienteId = Auth::clienteId(); // já cria se não existir (conforme sua Auth)
         if ($clienteId) {
             $st = $pdo->prepare('SELECT telefone, cpf, nascimento FROM cliente WHERE id = ?');
             $st->execute([$clienteId]);
             $cliente = $st->fetch(PDO::FETCH_ASSOC) ?: [];
         }
 
-        $this->render('conta/dados', [
+        $this->render('conta/dados/index', [
             'user'         => $u,
             'cliente'      => $cliente,
             'perfilAction' => Url::to('/conta/dados/perfil'),
@@ -161,7 +161,7 @@ final class ContaController extends BaseContaController
         return $id;
     }
 
-    /* ========= ENDEREÇOS (inalterado) ========= */
+    /* ========= ENDEREÇOS ========= */
 
     public function enderecos(): void
     {
@@ -170,19 +170,19 @@ final class ContaController extends BaseContaController
 
         $stmt = $pdo->prepare(
             'SELECT id, rotulo, nome, cep, logradouro, numero, complemento, bairro, cidade, uf, principal
-             FROM endereco
-             WHERE cliente_id = ?
-             ORDER BY principal DESC, id DESC'
+               FROM endereco
+              WHERE cliente_id = ?
+           ORDER BY principal DESC, id DESC'
         );
         $stmt->execute([$clienteId]);
         $enderecos = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-        $this->render('conta/enderecos', compact('enderecos'));
+        $this->render('conta/enderecos/index', compact('enderecos'));
     }
 
     public function novoEndereco(): void
     {
-        $this->render('conta/enderecos_form', [
+        $this->render('conta/enderecos/form', [
             'isEdit'    => false,
             'endereco'  => [],
             'actionUrl' => '/conta/enderecos/novo',
@@ -200,7 +200,7 @@ final class ContaController extends BaseContaController
         [$ok, $data, $errors] = $this->validateEndereco($in);
         if (!$ok) {
             Flash::set('error', 'Verifique os campos destacados.');
-            $this->render('conta/enderecos_form', [
+            $this->render('conta/enderecos/form', [
                 'isEdit'    => false,
                 'endereco'  => $in,
                 'errors'    => $errors,
@@ -218,8 +218,7 @@ final class ContaController extends BaseContaController
 
             $pdo->prepare('INSERT INTO endereco
                 (cliente_id, rotulo, nome, cep, logradouro, numero, complemento, bairro, cidade, uf, principal)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-                ->execute([
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')->execute([
                     $clienteId,
                     $data['rotulo'],
                     $data['nome'],
@@ -239,7 +238,7 @@ final class ContaController extends BaseContaController
         } catch (\Throwable $e) {
             $pdo->rollBack();
             Flash::set('error', 'Erro ao salvar endereço.');
-            $this->render('conta/enderecos_form', [
+            $this->render('conta/enderecos/form', [
                 'isEdit'    => false,
                 'endereco'  => $in,
                 'errors'    => ['Falha interna ao salvar.'],
@@ -279,7 +278,7 @@ final class ContaController extends BaseContaController
             $this->redirect('/conta/enderecos');
         }
 
-        $this->render('conta/enderecos_form', [
+        $this->render('conta/enderecos/form', [
             'isEdit'    => true,
             'endereco'  => $endereco,
             'actionUrl' => '/conta/enderecos/editar',
@@ -298,7 +297,7 @@ final class ContaController extends BaseContaController
         if (!$ok) {
             Flash::set('error', 'Verifique os campos destacados.');
             $in['id'] = $id;
-            $this->render('conta/enderecos_form', [
+            $this->render('conta/enderecos/form', [
                 'isEdit'    => true,
                 'endereco'  => $in,
                 'errors'    => $errors,
@@ -322,8 +321,7 @@ final class ContaController extends BaseContaController
 
             $pdo->prepare('UPDATE endereco SET
                     rotulo = ?, nome = ?, cep = ?, logradouro = ?, numero = ?, complemento = ?, bairro = ?, cidade = ?, uf = ?, principal = ?
-                WHERE id = ? AND cliente_id = ?')
-                ->execute([
+                WHERE id = ? AND cliente_id = ?')->execute([
                     $data['rotulo'],
                     $data['nome'],
                     $data['cep'],
@@ -422,7 +420,7 @@ final class ContaController extends BaseContaController
     private function validateEndereco(array $in): array
     {
         $errors = [];
-        $ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+        $ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
         if ($in['nome'] === '')        $errors[] = 'Nome é obrigatório.';
         if ($in['cep'] === '')         $errors[] = 'CEP é obrigatório.';
@@ -482,7 +480,10 @@ final class ContaController extends BaseContaController
             }
 
             $pdo->commit();
+            // manter compat com navbar antiga
             $_SESSION['user']['nome'] = $nome;
+            $_SESSION['nome'] = $nome;
+
             Flash::set('success', 'Dados atualizados.');
         } catch (\Throwable $e) {
             $pdo->rollBack();

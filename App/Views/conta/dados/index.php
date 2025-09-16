@@ -37,13 +37,13 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
 <body>
     <div class="d-flex flex-column wrapper">
 
-        <?php require dirname(__DIR__) . '/partials/navbar.php'; ?>
+         <?php require __DIR__ . '/../../partials/navbar.php'; ?>
 
         <main class="flex-fill">
             <div class="container py-3">
                 <div class="row g-3">
                     <div class="col-12 col-lg-3">
-                        <?php require dirname(__DIR__) . '/partials/conta-sidebar.php'; ?>
+                         <?php require __DIR__ . '/../../partials/conta-sidebar.php'; ?>
                     </div>
 
                     <div class="col-12 col-lg-9">
@@ -125,7 +125,7 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
             </div>
         </main>
 
-        <?php require dirname(__DIR__) . '/partials/footer.php'; ?>
+         <?php require __DIR__ . '/../../partials/footer.php'; ?>
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

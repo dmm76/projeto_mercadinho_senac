@@ -91,26 +91,35 @@
       <!-- Cards de Produtos (estático por enquanto) -->
       <div class="row g-3">
         <?php
-          // exemplo (duplique enquanto não buscar do banco)
+          // exemplo estático (duplique enquanto não buscar do banco)
           $produtoImg = \App\Core\Url::to('/assets/site/img/banana_orig.webp');
           for ($i=0; $i<12; $i++):
+            $produtoId = $i + 1;
         ?>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
           <div class="card text-center bg-light h-100">
             <button class="btn position-absolute end-0 p-2 text-danger" type="button" aria-label="Favoritar">
               <i class="bi bi-heart" style="cursor:pointer;font-size:20px"></i>
             </button>
-            <a href="<?= \App\Core\Url::to('/produto') ?>?id=<?= $i+1 ?>">
+
+            <a href="<?= \App\Core\Url::to('/produtos/' . $produtoId) ?>">
               <img src="<?= $produtoImg ?>" class="card-img-top" alt="Banana Prata">
             </a>
+
             <div class="card-header">R$ 13,50</div>
             <div class="card-body">
               <h5 class="card-title">Banana Prata</h5>
               <p class="card-text truncar-3l">A banana-prata é uma das variedades mais apreciadas no Brasil...</p>
             </div>
+
             <div class="card-footer">
-              <a href="<?= \App\Core\Url::to('/carrinho') ?>" class="btn btn-danger mt-2 d-block">Adicionar ao Carrinho</a>
-              <small class="text-success">320,5 kg em estoque</small>
+              <!-- POST seguro: adiciona ao carrinho -->
+              <form method="post" action="<?= \App\Core\Url::to('/carrinho/adicionar/' . $produtoId) ?>">
+                <input type="hidden" name="csrf" value="<?= \App\Core\Csrf::token() ?>">
+                <input type="hidden" name="quantidade" value="1">
+                <button class="btn btn-danger mt-2 d-block w-100" type="submit">Adicionar ao carrinho</button>
+              </form>
+              <small class="text-success d-block mt-2">320,5 kg em estoque</small>
             </div>
           </div>
         </div>
