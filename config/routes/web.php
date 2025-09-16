@@ -82,6 +82,7 @@ $router->post('/carrinho/atualizar/(\d+)', [CarrinhoController::class, 'atualiza
 $router->post('/carrinho/remover/(\d+)',   [CarrinhoController::class, 'remover']);
 
 // LOJA — Checkout
+$router->get ('/checkout', [SitePedidoController::class, 'checkout']);
 $router->post('/checkout', [SitePedidoController::class, 'finalizar']);
 
 // Alias (opcional): manter URLs antigas /meus-pedidos -> /conta/pedidos
