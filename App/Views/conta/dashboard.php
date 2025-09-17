@@ -9,7 +9,17 @@ $nome = $h($user['nome'] ?? 'Cliente');
 
 $totalPedidos = (int)($totalPedidos ?? 0);
 $qtdEnderecos = (int)($qtdEnderecos ?? 0);
-$cartCount    = (int)($cartCount ?? ($_SESSION['cart_count'] ?? 0));
+if (!isset($cartCount) || !is_numeric($cartCount)) {
+    $cart = $_SESSION['carrinho'] ?? [];
+    $cartCount = 0;
+    if (is_array($cart)) {
+        foreach ($cart as $item) {
+            $qty = $item['quantidade'] ?? 1;
+            $cartCount += is_numeric($qty) ? (int) $qty : 1;
+        }
+    }
+}
+$cartCount = max(0, (int) $cartCount);
 /** @var array<int,array{id:int,codigo_externo?:?string,codigo?:?string,status:string,total:float,criado_em:string}> $ultimosPedidos */
 $ultimosPedidos = $ultimosPedidos ?? [];
 

@@ -11,9 +11,6 @@ abstract class BaseContaController extends Controller
     {
         parent::__construct();
 
-        if (!Auth::isLoggedIn()) {
-            header('Location: /login');
-            exit;
-        }
-    }    
+        Auth::requireLogin('Faca login para acessar sua conta.', '/conta');
+    }
 }

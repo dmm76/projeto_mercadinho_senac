@@ -9,7 +9,7 @@ final class MensagemDAO
     public function __construct(private PDO $pdo) {}
 
     /**
-     * @param array{q?string,status?string} $filters
+     * @param array{q?:string,status?:string} $filters
      * @return array<int,array<string,mixed>>
      */
     public function list(array $filters = []): array
@@ -24,8 +24,8 @@ final class MensagemDAO
         }
 
         if (($filters['status'] ?? '') !== '') {
-            $where[] = 'status = status';
-            $params['status'] = $filters['status'];
+            $where[] = 'status = :status';
+            $params[':status'] = $filters['status'];
         }
 
         if ($where) {
@@ -39,24 +39,44 @@ final class MensagemDAO
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
-    /** @return array{id:int,nomestring,emailstring,mensagemstring,statusstring,criada_emstring,ip:?string,user_agent:?string,resposta:?string,respondida_em:?string}|null */
+    /**
+     * @return array{id:int,nome:string,email:string,mensagem:string,status:string,criada_em:string,ip:?string,user_agent:?string,resposta:?string,respondida_em:?string}|null
+     */
     public function find(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id, nome, email, mensagem, status, criada_em, ip, user_agent, resposta, respondida_em FROM contato_mensagens WHERE id = id LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT id, nome, email, mensagem, status, criada_em, ip, user_agent, resposta, respondida_em FROM contato_mensagens WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $row !== false ? $row : null;
     }
 
     public function atualizarStatus(int $id, string $status): void
     {
-        $stmt = $this->pdo->prepare('UPDATE contato_mensagens SET status = st, respondida_em = (CASE WHEN st = "respondida" THEN NOW() ELSE NULL END) WHERE id = id');
-        $stmt->execute([':st' => $status, ':id' => $id]);
+        $stmt = $this->pdo->prepare(
+            'UPDATE contato_mensagens
+             SET status = :status,
+                 respondida_em = CASE WHEN :status_check = "respondida" THEN NOW() ELSE NULL END
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            ':status' => $status,
+            ':status_check' => $status,
+            ':id' => $id,
+        ]);
     }
 
     public function registrarResposta(int $id, string $resposta): void
     {
-        $stmt = $this->pdo->prepare('UPDATE contato_mensagens SET status = "respondida", respondida_em = NOW(), resposta = :resposta WHERE id = id');
-        $stmt->execute([':resposta' => $resposta, ':id' => $id]);
+        $stmt = $this->pdo->prepare(
+            'UPDATE contato_mensagens
+             SET status = "respondida",
+                 respondida_em = NOW(),
+                 resposta = :resposta
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            ':resposta' => $resposta,
+            ':id' => $id,
+        ]);
     }
 }

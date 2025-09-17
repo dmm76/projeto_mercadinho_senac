@@ -8,15 +8,21 @@ final class Url
     {
         $script = $_SERVER['SCRIPT_NAME'] ?? '';
         $base = rtrim(str_replace('\\','/', dirname($script)), '/');
-        if ($base === '/' || $base === '\\') return '';
+        if ($base === '/' || $base === '\\') {
+            return '';
+        }
         return $base;
     }
 
     /** Gera URL respeitando a subpasta (ex.: /projeto_mercadinho_web) */
     public static function to(string $path): string
     {
-        $p = str_starts_with($path, '/') ? $path : '/'.$path;
-        return self::base().$p;
+        $p = str_starts_with($path, '/') ? $path : '/' . $path;
+        $base = self::base();
+        if ($base !== '' && (str_starts_with($p, $base . '/') || $p === $base)) {
+            return $p;
+        }
+        return $base . $p;
     }
 
     /** Caminho atual normalizado (sem a base) */
@@ -31,7 +37,7 @@ final class Url
         return $n === '' ? '/' : $n;
     }
 
-    /** Verifica se o link é a rota atual (pra “active”) */
+    /** Verifica se o link eh a rota atual (pra "active") */
     public static function is(string $path): bool
     {
         $n = rtrim($path, '/');
@@ -39,4 +45,3 @@ final class Url
         return self::path() === $n;
     }
 }
-

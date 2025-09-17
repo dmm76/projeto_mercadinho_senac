@@ -5,13 +5,28 @@ use App\Core\Auth;
 
 $u = Auth::user();
 $isAdmin = $u && ($u['perfil'] === 'admin');
+
+$cartCount = 0;
+$cart = $_SESSION['carrinho'] ?? [];
+if (is_array($cart)) {
+    foreach ($cart as $item) {
+        $qty = $item['quantidade'] ?? 1;
+        if (is_numeric($qty)) {
+            $cartCount += (int) $qty;
+        } else {
+            $cartCount++;
+        }
+    }
+}
+$cartCount = max(0, (int) $cartCount);
+$_SESSION['cart_count'] = $cartCount;
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger border-bottom shadow-sm mb-3 py-3">
   <div class="container">
     <a class="navbar-brand text-white" href="<?= Url::to('/') ?>">Mercadinho Borba Gato</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-      aria-controls="navbarMain" aria-expanded="false" aria-label="Alternar navegação">
+      aria-controls="navbarMain" aria-expanded="false" aria-label="Alternar navegacao">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -40,7 +55,7 @@ $isAdmin = $u && ($u['perfil'] === 'admin');
           <a href="<?= Url::to('/carrinho') ?>" class="nav-link text-white position-relative <?= Url::is('/carrinho') ? 'active' : '' ?>">
             <i class="bi bi-cart" style="font-size:22px"></i>
             <span class="badge rounded-pill bg-light text-danger position-absolute top-0 start-100 translate-middle">
-              <small><?= (int)($_SESSION['cart_count'] ?? 0) ?></small>
+              <small><?= $cartCount ?></small>
             </span>
             <span class="d-inline d-lg-none ms-1">Carrinho</span>
           </a>
@@ -55,7 +70,7 @@ $isAdmin = $u && ($u['perfil'] === 'admin');
               <li><a class="dropdown-item" href="<?= Url::to('/conta') ?>">Minha Conta</a></li>
               <li><a class="dropdown-item" href="<?= Url::to('/conta/pedidos') ?>">Meus Pedidos</a></li>
               <li><a class="dropdown-item" href="<?= Url::to('/conta/dados') ?>">Meus Dados</a></li>
-              <li><a class="dropdown-item" href="<?= Url::to('/conta/enderecos') ?>">Endereços</a></li>
+              <li><a class="dropdown-item" href="<?= Url::to('/conta/enderecos') ?>">Enderecos</a></li>
               <?php if ($isAdmin): ?>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="<?= Url::to('/admin') ?>">Painel Admin</a></li>

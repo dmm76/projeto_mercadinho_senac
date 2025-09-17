@@ -7,6 +7,7 @@ use App\Controllers\Site\HomeController;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\ContatoController;
 use App\Controllers\Site\CarrinhoController;
+use App\Controllers\Site\FavoritosController;
 use App\Controllers\Conta\ContaController;
 use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
@@ -31,6 +32,9 @@ $router->post('/contato',  [ContatoController::class, 'send']);
 $router->get('/produtos/(\d+)', [SiteProdutoController::class, 'ver']);   // detalhe
 $router->get('/produtos',       [SiteProdutoController::class, 'index']); // lista
 $router->get('/buscar',         [SiteProdutoController::class, 'index']); // busca via ?q=
+
+// Favoritos
+$router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
 // Carrinho
 $router->get('/carrinho',                    [CarrinhoController::class, 'index']);

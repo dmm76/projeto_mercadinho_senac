@@ -59,6 +59,10 @@ $router->post('/admin/mensagens/responder', [MensagensController::class, 'respon
 
 // Pedidos
 $router->get('/admin/pedidos', [PedidosController::class, 'index']);
+$router->get('/admin/pedidos/(\d+)', [PedidosController::class, 'show']);
+$router->get('/admin/pedidos/(\d+)/marcar-pago', [PedidosController::class, 'marcarPago']);
+$router->get('/admin/pedidos/(\d+)/enviar', [PedidosController::class, 'enviar']);
+$router->get('/admin/pedidos/(\d+)/cancelar', [PedidosController::class, 'cancelar']);
 
 // Configurações
 $router->get('/admin/configuracoes', [ConfiguracoesController::class, 'index']);

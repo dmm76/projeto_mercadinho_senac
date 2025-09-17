@@ -9,8 +9,10 @@ use PDO;
 
 final class Auth
 {
+    private const INTENDED_SESSION_KEY = 'auth_intended';
+
     /**
-     * Retorna o usuário logado.
+     * Retorna o usuario logado.
      * @return array{id:int,nome:string,email:string,perfil:string,ativo:int}|null
      */
     public static function user(): ?array
@@ -51,7 +53,7 @@ final class Auth
         return self::user() !== null;
     }
 
-    /** Conveniência (opcional) */
+    /** Conveniencia (opcional) */
     public static function isAdmin(): bool
     {
         $u = self::user();
@@ -62,19 +64,35 @@ final class Auth
     {
         $u = self::user();
         if (!$u || $u['perfil'] !== 'admin') {
-            header('Location: /login');
-            exit;
+            self::redirectToLogin('Faca login como administrador para continuar.', '/admin');
         }
+    }
+
+    public static function requireLogin(string $message = 'Faca login para continuar.', string $fallback = '/'): void
+    {
+        if (self::isLoggedIn()) {
+            return;
+        }
+
+        self::redirectToLogin($message, $fallback);
     }
 
     public static function logout(): void
     {
         self::ensureSession();
-        unset($_SESSION['user'], $_SESSION['user_id'], $_SESSION['nome'], $_SESSION['cliente_id']); // + limpa cliente_id
+        unset(
+            $_SESSION['user'],
+            $_SESSION['user_id'],
+            $_SESSION['nome'],
+            $_SESSION['cliente_id'],
+            $_SESSION['carrinho'],
+            $_SESSION['cart_count'],
+            $_SESSION[self::INTENDED_SESSION_KEY]
+        ); // + limpa cliente_id, carrinho e destino
     }
 
     /**
-     * Autentica e carrega o usuário na sessão.
+     * Autentica e carrega o usuario na sessao.
      */
     public static function login(string $email, string $senha): bool
     {
@@ -118,21 +136,98 @@ final class Auth
             'ativo'  => $ativo,
         ];
 
-        // 🔗 já resolve e cacheia o cliente_id (se existir)
+        // resolve e cacheia o cliente_id (se existir)
         $stmt = $pdo->prepare('SELECT id FROM cliente WHERE usuario_id = ? LIMIT 1');
         $stmt->execute([$id]);
         $cliId = $stmt->fetchColumn();
         if ($cliId) {
             $_SESSION['cliente_id'] = (int) $cliId;
         } else {
-            unset($_SESSION['cliente_id']); // usuário pode não ter cliente
+            unset($_SESSION['cliente_id']); // usuario pode nao ter cliente
         }
 
         return true;
     }
 
     /**
-     * Retorna o cliente_id associado ao usuário logado (ou null se não existir).
+     * Recupera e consome a rota pretendida pelo usuario.
+     */
+    public static function popIntended(?string $default = null): ?string
+    {
+        self::ensureSession();
+
+        if (!isset($_SESSION[self::INTENDED_SESSION_KEY])) {
+            return $default;
+        }
+
+        $target = $_SESSION[self::INTENDED_SESSION_KEY];
+        unset($_SESSION[self::INTENDED_SESSION_KEY]);
+
+        $normalized = self::normalizeTarget(is_string($target) ? $target : null);
+
+        return $normalized ?? $default;
+    }
+
+    /**
+     * Armazena o destino pretendido e redireciona para o login.
+     */
+    private static function redirectToLogin(string $message, string $fallback): void
+    {
+        self::storeIntended($fallback);
+
+        if ($message !== '') {
+            Flash::set('error', $message);
+        }
+
+        header('Location: ' . Url::to('/login'), true, 302);
+        exit;
+    }
+
+    /**
+     * Guarda a URL requisitada (sem o prefixo da aplicacao) para pos-login.
+     */
+    private static function storeIntended(?string $fallback = null): void
+    {
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $path = Url::path();
+        $query = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+        $fallback = self::normalizeTarget($fallback);
+
+        if ($path === '/login') {
+            $path = null; // evita ciclo login -> login
+        } elseif ($method !== 'GET') {
+            $path = $fallback ?? $path;
+            $query = null;
+        }
+
+        if ($path === null || $path === '') {
+            $path = $fallback ?? '/';
+        }
+
+        if (is_string($query) && $query !== '') {
+            $path .= '?' . $query;
+        }
+
+        self::ensureSession();
+        $_SESSION[self::INTENDED_SESSION_KEY] = $path;
+    }
+
+    private static function normalizeTarget(?string $target): ?string
+    {
+        if ($target === null) {
+            return null;
+        }
+
+        $trimmed = trim($target);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        return str_starts_with($trimmed, '/') ? $trimmed : '/' . ltrim($trimmed, '/');
+    }
+
+    /**
+     * Retorna o cliente_id associado ao usuario logado (ou null se nao existir).
      * Cacheado em $_SESSION['cliente_id'] para evitar SELECT em cada request.
      */
     public static function clienteId(): ?int
@@ -158,7 +253,7 @@ final class Auth
             return (int) $id;
         }
 
-        return null; // usuário sem registro em cliente
+        return null; // usuario sem registro em cliente
     }
 
     private static function ensureSession(): void

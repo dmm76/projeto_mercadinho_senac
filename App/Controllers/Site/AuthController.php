@@ -47,8 +47,12 @@ final class AuthController extends Controller
                 $_SESSION['cliente_id'] = $this->ensureClienteId((int)$u['id']);
             }
 
-            // se for admin vai pro /admin, senão vai pra home
-            $dest = ($u && $u['perfil'] === 'admin') ? '/admin' : '/';
+            $dest = Auth::popIntended();
+            if ($dest === null) {
+                // fallback: admin vai pro painel, demais para home
+                $dest = ($u && $u['perfil'] === 'admin') ? '/admin' : '/';
+            }
+
             \App\Core\Flash::set('success', 'Bem-vindo, ' . ($u['nome'] ?? ''));
             // PRG
             header('Location: ' . Url::to($dest), true, 303);
