@@ -2,16 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Controllers\Admin\UsuariosController;
-use App\Controllers\Admin\MensagensController;
-use App\Controllers\Admin\PedidosController;
-use App\Controllers\Admin\ConfiguracoesController;
-
-$router->get('/admin/usuarios',      [UsuariosController::class, 'index']);
-$router->get('/admin/mensagens',     [MensagensController::class, 'index']);
-$router->get('/admin/pedidos',       [PedidosController::class, 'index']);
-$router->get('/admin/configuracoes', [ConfiguracoesController::class, 'index']);
-
 
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\AuthController;
@@ -22,7 +12,7 @@ use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
 
 /**
- * SITE (público)
+ * SITE (pÃƒÂºblico)
  */
 $router->get('/', [HomeController::class, 'index']);
 

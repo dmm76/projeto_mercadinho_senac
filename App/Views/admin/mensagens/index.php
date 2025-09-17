@@ -1,8 +1,9 @@
-﻿<?php
+<?php
 use App\Core\Url;
 use App\Core\Flash;
+use App\Core\Csrf;
 
-/** @var array<int,array{id:int,nome:string,email:string,assunto:string,status:string,criada_em:string}> $mensagens */
+/** @var array<int,array{id:int,nome:string,email:string,mensagem:string,status:string,criada_em:string,assunto_preview?:string}> $mensagens */
 $mensagens = $mensagens ?? [];
 $filters = $filters ?? ['q' => '', 'status' => ''];
 $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
@@ -16,9 +17,7 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
-  <style>
-    .sidebar-sticky { position: sticky; top: 1rem; }
-  </style>
+  <style>.sidebar-sticky{position:sticky;top:1rem;}</style>
 </head>
 <body>
 <div class="d-flex flex-column wrapper">
@@ -53,10 +52,10 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
           <?php endif; ?>
 
           <form class="row gy-2 gx-2 mb-3" method="get" action="<?= Url::to('/admin/mensagens') ?>">
-            <div class="col-sm-6 col-md-5">
+            <div class="col-sm-12 col-md-5">
               <input type="text" name="q" value="<?= $h($filters['q'] ?? '') ?>" class="form-control" placeholder="Buscar por cliente, e-mail ou mensagem">
             </div>
-            <div class="col-sm-4 col-md-3">
+            <div class="col-sm-6 col-md-3">
               <?php $status = $filters['status'] ?? ''; ?>
               <select name="status" class="form-select">
                 <option value=""<?= $status === '' ? ' selected' : '' ?>>Todos os status</option>
@@ -65,7 +64,7 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
                 <option value="arquivada"<?= $status === 'arquivada' ? ' selected' : '' ?>>Arquivada</option>
               </select>
             </div>
-            <div class="col-sm-2 d-grid">
+            <div class="col-sm-6 col-md-2 d-grid">
               <button class="btn btn-outline-secondary"><i class="bi bi-search me-1"></i> Filtrar</button>
             </div>
           </form>
@@ -86,26 +85,44 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
                 </thead>
                 <tbody>
                 <?php foreach ($mensagens as $mensagem): ?>
-                  <?php $status = $mensagem['status'] ?? 'aberta'; ?>
+                  <?php $statusAtual = $mensagem['status'] ?? 'aberta'; ?>
                   <tr>
                     <td><?= (int)($mensagem['id'] ?? 0) ?></td>
                     <td><?= $h($mensagem['nome'] ?? '') ?></td>
                     <td><?= $h($mensagem['email'] ?? '') ?></td>
                     <td><?= $h($mensagem['assunto_preview'] ?? '') ?></td>
                     <td>
-                      <span class="badge <?= $status === 'aberta' ? 'text-bg-warning' : ($status === 'respondida' ? 'text-bg-success' : 'text-bg-secondary') ?>">
-                        <?= $h(ucfirst($status)) ?>
+                      <span class="badge <?= $statusAtual === 'aberta' ? 'text-bg-warning' : ($statusAtual === 'respondida' ? 'text-bg-success' : 'text-bg-secondary') ?>">
+                        <?= $h(ucfirst($statusAtual)) ?>
                       </span>
                     </td>
                     <td class="text-end"><?= $h($mensagem['criada_em'] ?? '-') ?></td>
                     <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <a class="btn btn-outline-secondary" href="<?= Url::to('/admin/mensagens/' . (int)($mensagem['id'] ?? 0)) ?>">Ver</a>
-                        <?php if ($status !== 'respondida'): ?>
-                          <a class="btn btn-outline-primary" href="<?= Url::to('/admin/mensagens/' . (int)$mensagem['id'] . '/responder') ?>">Responder</a>
+                      <div class="d-flex justify-content-end gap-1 flex-wrap">
+                        <a class="btn btn-outline-secondary btn-sm" href="<?= Url::to('/admin/mensagens/ver') . '?id=' . (int)($mensagem['id'] ?? 0) ?>">Ver</a>
+                        <?php if ($statusAtual !== 'respondida'): ?>
+                          <form method="post" action="<?= Url::to('/admin/mensagens/status') ?>" class="d-inline">
+                            <?= Csrf::input() ?>
+                            <input type="hidden" name="id" value="<?= (int)($mensagem['id'] ?? 0) ?>">
+                            <input type="hidden" name="status" value="respondida">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Marcar respondida</button>
+                          </form>
                         <?php endif; ?>
-                        <?php if ($status !== 'arquivada'): ?>
-                          <a class="btn btn-outline-dark" href="<?= Url::to('/admin/mensagens/' . (int)$mensagem['id'] . '/arquivar') ?>">Arquivar</a>
+                        <?php if ($statusAtual !== 'arquivada'): ?>
+                          <form method="post" action="<?= Url::to('/admin/mensagens/status') ?>" class="d-inline">
+                            <?= Csrf::input() ?>
+                            <input type="hidden" name="id" value="<?= (int)($mensagem['id'] ?? 0) ?>">
+                            <input type="hidden" name="status" value="arquivada">
+                            <button type="submit" class="btn btn-outline-dark btn-sm">Arquivar</button>
+                          </form>
+                        <?php endif; ?>
+                        <?php if ($statusAtual !== 'aberta'): ?>
+                          <form method="post" action="<?= Url::to('/admin/mensagens/status') ?>" class="d-inline">
+                            <?= Csrf::input() ?>
+                            <input type="hidden" name="id" value="<?= (int)($mensagem['id'] ?? 0) ?>">
+                            <input type="hidden" name="status" value="aberta">
+                            <button type="submit" class="btn btn-outline-success btn-sm">Reabrir</button>
+                          </form>
                         <?php endif; ?>
                       </div>
                     </td>
@@ -131,11 +148,3 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-

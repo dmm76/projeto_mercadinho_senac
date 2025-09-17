@@ -5,6 +5,10 @@ use App\Controllers\Admin\CategoriaController;
 use App\Controllers\Admin\MarcaController;
 use App\Controllers\Admin\UnidadeController;
 use App\Controllers\Admin\ProdutoController;
+use App\Controllers\Admin\UsuariosController;
+use App\Controllers\Admin\MensagensController;
+use App\Controllers\Admin\PedidosController;
+use App\Controllers\Admin\ConfiguracoesController;
 
 $router->get('/admin', [DashboardController::class, 'index']);
 
@@ -39,3 +43,22 @@ $router->post('/admin/produtos/criar', [ProdutoController::class, 'store']);
 $router->get('/admin/produtos/editar', [ProdutoController::class, 'edit']);        // ?id=#
 $router->post('/admin/produtos/editar', [ProdutoController::class, 'update']);
 $router->post('/admin/produtos/excluir', [ProdutoController::class, 'destroy']);   // id hidden
+
+// Usuários
+$router->get('/admin/usuarios', [UsuariosController::class, 'index']);
+$router->get('/admin/usuarios/ver', [UsuariosController::class, 'show']);
+$router->get('/admin/usuarios/editar', [UsuariosController::class, 'edit']);
+$router->post('/admin/usuarios/editar', [UsuariosController::class, 'update']);
+$router->post('/admin/usuarios/status', [UsuariosController::class, 'toggleStatus']);
+
+// Mensagens
+$router->get('/admin/mensagens', [MensagensController::class, 'index']);
+$router->get('/admin/mensagens/ver', [MensagensController::class, 'show']);
+$router->post('/admin/mensagens/status', [MensagensController::class, 'updateStatus']);
+$router->post('/admin/mensagens/responder', [MensagensController::class, 'responder']);
+
+// Pedidos
+$router->get('/admin/pedidos', [PedidosController::class, 'index']);
+
+// Configurações
+$router->get('/admin/configuracoes', [ConfiguracoesController::class, 'index']);

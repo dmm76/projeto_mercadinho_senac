@@ -1,10 +1,14 @@
-﻿<?php
+<?php
 use App\Core\Url;
 use App\Core\Flash;
+use App\Core\Csrf;
 
-/** @var array<int,array{id:int,nome:string,email:string,perfil:string,status:string,criado_em:string}> $usuarios */
+/**
+ * @var array<int,array{id:int,nome:string,email:string,perfil:string,ativo:int,criado_em:string}> $usuarios
+ * @var array{q?:string,perfil?:string,status?:string} $filters
+ */
 $usuarios = $usuarios ?? [];
-$filters = $filters ?? ['q' => '', 'perfil' => '', 'status' => ''];
+$filters  = $filters ?? ['q' => '', 'perfil' => '', 'status' => ''];
 $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 ?>
 <!doctype html>
@@ -32,9 +36,9 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
         </div>
 
         <div class="col-12 col-lg-9">
-          <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
             <h1 class="h4 mb-0">Usuários</h1>
-            <a href="<?= Url::to('/admin/usuarios/novo') ?>" class="btn btn-danger">
+            <a href="<?= Url::to('/admin/usuarios/novo') ?>" class="btn btn-danger disabled" title="Em breve">
               <i class="bi bi-plus-lg me-1"></i> Novo usuário
             </a>
           </div>
@@ -53,27 +57,28 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
           <?php endif; ?>
 
           <form class="row gy-2 gx-2 mb-3" method="get" action="<?= Url::to('/admin/usuarios') ?>">
-            <div class="col-sm-4 col-md-5 col-lg-4">
+            <div class="col-sm-12 col-md-5">
               <input type="text" name="q" value="<?= $h($filters['q'] ?? '') ?>" class="form-control" placeholder="Buscar por nome ou e-mail">
             </div>
-            <div class="col-sm-4 col-md-3 col-lg-3">
+            <div class="col-sm-6 col-md-3 col-lg-2">
+              <?php $perfilAtual = $filters['perfil'] ?? ''; ?>
               <select name="perfil" class="form-select">
-                <?php $perfil = $filters['perfil'] ?? ''; ?>
-                <option value=""<?= $perfil === '' ? ' selected' : '' ?>>Todos os perfis</option>
-                <option value="admin"<?= $perfil === 'admin' ? ' selected' : '' ?>>Admin</option>
-                <option value="gerente"<?= $perfil === 'gerente' ? ' selected' : '' ?>>Gerente</option>
-                <option value="atendente"<?= $perfil === 'atendente' ? ' selected' : '' ?>>Atendente</option>
+                <option value=""<?= $perfilAtual === '' ? ' selected' : '' ?>>Todos os perfis</option>
+                <option value="admin"<?= $perfilAtual === 'admin' ? ' selected' : '' ?>>Admin</option>
+                <option value="gerente"<?= $perfilAtual === 'gerente' ? ' selected' : '' ?>>Gerente</option>
+                <option value="operador"<?= $perfilAtual === 'operador' ? ' selected' : '' ?>>Operador</option>
+                <option value="cliente"<?= $perfilAtual === 'cliente' ? ' selected' : '' ?>>Cliente</option>
               </select>
             </div>
-            <div class="col-sm-4 col-md-3 col-lg-3">
-              <?php $status = $filters['status'] ?? ''; ?>
+            <div class="col-sm-6 col-md-3 col-lg-2">
+              <?php $statusAtual = $filters['status'] ?? ''; ?>
               <select name="status" class="form-select">
-                <option value=""<?= $status === '' ? ' selected' : '' ?>>Todos os status</option>
-                <option value="ativo"<?= $status === 'ativo' ? ' selected' : '' ?>>Ativo</option>
-                <option value="inativo"<?= $status === 'inativo' ? ' selected' : '' ?>>Inativo</option>
+                <option value=""<?= $statusAtual === '' ? ' selected' : '' ?>>Todos</option>
+                <option value="ativo"<?= $statusAtual === 'ativo' ? ' selected' : '' ?>>Ativos</option>
+                <option value="inativo"<?= $statusAtual === 'inativo' ? ' selected' : '' ?>>Inativos</option>
               </select>
             </div>
-            <div class="col-sm-12 col-md-3 col-lg-2 d-grid">
+            <div class="col-sm-12 col-md-3 col-lg-3 d-grid">
               <button class="btn btn-outline-secondary"><i class="bi bi-search me-1"></i> Filtrar</button>
             </div>
           </form>
@@ -82,52 +87,51 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
             <div class="table-responsive">
               <table class="table align-middle table-hover mb-0">
                 <thead class="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Perfil</th>
-                  <th>Status</th>
-                  <th class="text-end">Criado em</th>
-                  <th class="text-end">Ações</th>
-                </tr>
+                  <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th class="text-end">Criado em</th>
+                    <th class="text-end">Ações</th>
+                  </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($usuarios as $usuario): ?>
-                  <?php
-                    $perfil = $usuario['perfil'] ?? '-';
-                    $statusUsuario = $usuario['status'] ?? 'inativo';
-                    $ativo = strtolower($statusUsuario) === 'ativo';
-                  ?>
-                  <tr>
-                    <td><?= (int)($usuario['id'] ?? 0) ?></td>
-                    <td><?= $h($usuario['nome'] ?? '') ?></td>
-                    <td><?= $h($usuario['email'] ?? '') ?></td>
-                    <td><span class="badge text-bg-secondary text-uppercase"><?= $h($perfil) ?></span></td>
-                    <td>
-                      <span class="badge <?= $ativo ? 'text-bg-success' : 'text-bg-secondary' ?>">
-                        <?= $ativo ? 'Ativo' : 'Inativo' ?>
-                      </span>
-                    </td>
-                    <td class="text-end"><?= $h($usuario['criado_em'] ?? '-') ?></td>
-                    <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <a class="btn btn-outline-secondary" href="<?= Url::to('/admin/usuarios/' . (int)($usuario['id'] ?? 0)) ?>">Ver</a>
-                        <a class="btn btn-outline-primary" href="<?= Url::to('/admin/usuarios/' . (int)($usuario['id'] ?? 0) . '/editar') ?>">Editar</a>
-                        <?php if ($ativo): ?>
-                          <a class="btn btn-outline-warning" href="<?= Url::to('/admin/usuarios/' . (int)$usuario['id'] . '/desativar') ?>">Desativar</a>
-                        <?php else: ?>
-                          <a class="btn btn-outline-success" href="<?= Url::to('/admin/usuarios/' . (int)$usuario['id'] . '/ativar') ?>">Ativar</a>
-                        <?php endif; ?>
-                      </div>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-                <?php if (empty($usuarios)): ?>
-                  <tr>
-                    <td colspan="7" class="text-center text-muted py-4">Nenhum usuário encontrado.</td>
-                  </tr>
-                <?php endif; ?>
+                  <?php foreach ($usuarios as $usuario): ?>
+                    <?php $ativo = (int)($usuario['ativo'] ?? 0) === 1; ?>
+                    <tr>
+                      <td><?= (int)($usuario['id'] ?? 0) ?></td>
+                      <td><?= $h($usuario['nome'] ?? '') ?></td>
+                      <td><?= $h($usuario['email'] ?? '') ?></td>
+                      <td><span class="badge text-bg-secondary text-uppercase"><?= $h($usuario['perfil'] ?? '-') ?></span></td>
+                      <td>
+                        <span class="badge <?= $ativo ? 'text-bg-success' : 'text-bg-secondary' ?>">
+                          <?= $ativo ? 'Ativo' : 'Inativo' ?>
+                        </span>
+                      </td>
+                      <td class="text-end"><?= $h($usuario['criado_em'] ?? '-') ?></td>
+                      <td class="text-end">
+                        <div class="d-flex justify-content-end gap-1 flex-wrap">
+                          <a class="btn btn-outline-secondary btn-sm" href="<?= Url::to('/admin/usuarios/ver') . '?id=' . (int)($usuario['id'] ?? 0) ?>">Ver</a>
+                          <a class="btn btn-outline-primary btn-sm" href="<?= Url::to('/admin/usuarios/editar') . '?id=' . (int)($usuario['id'] ?? 0) ?>">Editar</a>
+                          <form method="post" action="<?= Url::to('/admin/usuarios/status') ?>" class="d-inline">
+                            <?= Csrf::input() ?>
+                            <input type="hidden" name="id" value="<?= (int)($usuario['id'] ?? 0) ?>">
+                            <input type="hidden" name="acao" value="<?= $ativo ? 'desativar' : 'ativar' ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-<?= $ativo ? 'warning' : 'success' ?>">
+                              <?= $ativo ? 'Desativar' : 'Ativar' ?>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                  <?php if (empty($usuarios)): ?>
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-4">Nenhum usuário encontrado.</td>
+                    </tr>
+                  <?php endif; ?>
                 </tbody>
               </table>
             </div>
@@ -143,5 +147,3 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
