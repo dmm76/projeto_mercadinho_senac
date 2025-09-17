@@ -33,7 +33,7 @@ class ContatoController
         $csrfToken = $_SESSION[self::CSRF_KEY];
 
         // Ajuste este caminho conforme sua estrutura de pastas
-        $view = dirname(__DIR__, 2) . '/Views/site/home/contato.php';
+        $view = dirname(__DIR__, 2) . '/Views/site/contato/show.php';
         if (!is_file($view)) {
             http_response_code(500);
             echo 'View não encontrada: ' . $view;

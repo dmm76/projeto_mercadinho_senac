@@ -41,10 +41,9 @@ final class PedidoController extends Controller
         $this->render('site/pedidos/index', ['title' => 'Meus pedidos', 'pedidos' => $pedidos]);
     }
 
-    public function ver(array $params): void
+    public function ver(int $pedidoId): void
     {
         $clienteId = $this->exigirClienteId();
-        $pedidoId = (int)($params['id'] ?? 0);
 
         if ($pedidoId <= 0) {
             header('Location: ' . Url::to('/conta/pedidos'), true, 303);
@@ -53,12 +52,12 @@ final class PedidoController extends Controller
 
         $pedido = Pedido::buscarDoCliente($clienteId, $pedidoId);
         if (!$pedido) {
-            Flash::set('error', 'Pedido não encontrado.');
+            Flash::set('error', 'Pedido nao encontrado.');
             header('Location: ' . Url::to('/conta/pedidos'), true, 303);
             exit;
         }
 
-        $this->render('site/pedidos/ver', ['title' => 'Pedido #'.$pedidoId, 'pedido' => $pedido]);
+        $this->render('site/pedidos/ver', ['title' => 'Pedido #' . $pedidoId, 'pedido' => $pedido]);
     }
 
     /** Exibe o checkout com os endereços do cliente */
@@ -163,3 +162,4 @@ final class PedidoController extends Controller
         }
     }
 }
+

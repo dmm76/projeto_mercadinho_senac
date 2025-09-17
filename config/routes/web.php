@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Controllers\Admin\UsuariosController;
+use App\Controllers\Admin\MensagensController;
+use App\Controllers\Admin\PedidosController;
+use App\Controllers\Admin\ConfiguracoesController;
+
+$router->get('/admin/usuarios',      [UsuariosController::class, 'index']);
+$router->get('/admin/mensagens',     [MensagensController::class, 'index']);
+$router->get('/admin/pedidos',       [PedidosController::class, 'index']);
+$router->get('/admin/configuracoes', [ConfiguracoesController::class, 'index']);
+
+
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\ContatoController;
@@ -16,14 +27,14 @@ use App\Controllers\Site\PedidoController  as SitePedidoController;
 $router->get('/', [HomeController::class, 'index']);
 
 // Auth
-$router->get ('/login',      [AuthController::class, 'showLogin']);
+$router->get('/login',      [AuthController::class, 'showLogin']);
 $router->post('/login',      [AuthController::class, 'login']);
-$router->get ('/registrar',  [AuthController::class, 'showRegister']);
+$router->get('/registrar',  [AuthController::class, 'showRegister']);
 $router->post('/registrar',  [AuthController::class, 'register']);
-$router->get ('/logout',     [AuthController::class, 'logout']);
+$router->get('/logout',     [AuthController::class, 'logout']);
 
 // Contato
-$router->get ('/contato',  [ContatoController::class, 'show']);
+$router->get('/contato',  [ContatoController::class, 'show']);
 $router->post('/contato',  [ContatoController::class, 'send']);
 
 // Produtos
@@ -32,14 +43,14 @@ $router->get('/produtos',       [SiteProdutoController::class, 'index']); // lis
 $router->get('/buscar',         [SiteProdutoController::class, 'index']); // busca via ?q=
 
 // Carrinho
-$router->get ('/carrinho',                    [CarrinhoController::class, 'index']);
-$router->get ('/carrinho/adicionar/(\d+)',    [CarrinhoController::class, 'adicionarGet']); // fallback p/ links antigos (GET)
+$router->get('/carrinho',                    [CarrinhoController::class, 'index']);
+$router->get('/carrinho/adicionar/(\d+)',    [CarrinhoController::class, 'adicionarGet']); // fallback p/ links antigos (GET)
 $router->post('/carrinho/adicionar/(\d+)',    [CarrinhoController::class, 'adicionar']);
 $router->post('/carrinho/atualizar/(\d+)',    [CarrinhoController::class, 'atualizar']);
 $router->post('/carrinho/remover/(\d+)',      [CarrinhoController::class, 'remover']);
 
 // Checkout
-$router->get ('/checkout', [SitePedidoController::class, 'checkout']);  // exibe
+$router->get('/checkout', [SitePedidoController::class, 'checkout']);  // exibe
 $router->post('/checkout', [SitePedidoController::class, 'finalizar']); // finaliza
 
 /**
@@ -55,9 +66,9 @@ $router->get('/conta/dados',                [ContaController::class, 'dados']);
 $router->post('/conta/dados/perfil',        [ContaController::class, 'salvarPerfil']);
 $router->post('/conta/dados/senha',         [ContaController::class, 'atualizarSenha']);
 
-$router->get ('/conta/enderecos',           [ContaController::class, 'enderecos']);
-$router->get ('/conta/enderecos/novo',      [ContaController::class, 'novoEndereco']);
-$router->get ('/conta/enderecos/editar',    [ContaController::class, 'editarEnderecoQuery']); // legado ?id=
+$router->get('/conta/enderecos',           [ContaController::class, 'enderecos']);
+$router->get('/conta/enderecos/novo',      [ContaController::class, 'novoEndereco']);
+$router->get('/conta/enderecos/editar',    [ContaController::class, 'editarEnderecoQuery']); // legado ?id=
 $router->post('/conta/enderecos/novo',      [ContaController::class, 'criarEndereco']);
 $router->post('/conta/enderecos/editar',    [ContaController::class, 'atualizarEnderecoQuery']);
 $router->post('/conta/enderecos/excluir',   [ContaController::class, 'excluirEnderecoQuery']);

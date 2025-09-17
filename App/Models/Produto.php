@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace App\Models;
 
-use App\Core\BD;
+use App\DAO\Database;
 use PDO;
 
 final class Produto
@@ -47,7 +47,13 @@ final class Produto
         ) pr ON pr.produto_id = p.id
         WHERE p.ativo = 1
         ORDER BY p.id DESC";
-        return BD::conn()->query($sql)->fetchAll();
+
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query($sql);
+        if ($stmt === false) {
+            return [];
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public static function encontrarAtivo(int $id): ?array {
@@ -74,9 +80,11 @@ final class Produto
            LIMIT 1
         ) pr ON pr.produto_id = p.id
         WHERE p.ativo = 1 AND p.id = ?";
-        $st = BD::conn()->prepare($sql);
+
+        $pdo = Database::getConnection();
+        $st = $pdo->prepare($sql);
         $st->execute([$id, $id]);
-        $row = $st->fetch();
+        $row = $st->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }
 

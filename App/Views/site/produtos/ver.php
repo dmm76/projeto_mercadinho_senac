@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /** app/Views/site/produtos/ver.php */
 $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 $step = (!empty($produto['peso_variavel']) || (($produto['unidade_sigla'] ?? '') === 'KG')) ? '0.001' : '1';
@@ -74,3 +74,4 @@ if (!empty($produto['imagem'])) {
     </div>
   </div>
 </div>
+
