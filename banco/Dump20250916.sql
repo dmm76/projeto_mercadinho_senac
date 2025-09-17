@@ -146,6 +146,7 @@ CREATE TABLE `contato_mensagens` (
   `nome` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mensagem` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `resposta` text COLLATE utf8mb4_unicode_ci,
   `status` enum('aberta','respondida','arquivada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'aberta',
   `ip` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `user_agent` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -161,7 +162,7 @@ CREATE TABLE `contato_mensagens` (
 
 LOCK TABLES `contato_mensagens` WRITE;
 /*!40000 ALTER TABLE `contato_mensagens` DISABLE KEYS */;
-INSERT INTO `contato_mensagens` VALUES (1,'Douglas','douglas@email.com','teste agora','aberta','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0','2025-09-17 00:37:03',NULL);
+INSERT INTO `contato_mensagens` VALUES (1,'Douglas','douglas@email.com','teste agora','estamos em teste','respondida','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0','2025-09-17 00:37:03','2025-09-17 02:27:39');
 /*!40000 ALTER TABLE `contato_mensagens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,7 +262,7 @@ CREATE TABLE `estoque` (
 
 LOCK TABLES `estoque` WRITE;
 /*!40000 ALTER TABLE `estoque` DISABLE KEYS */;
-INSERT INTO `estoque` VALUES (1,1,44.000,5.000,'2025-09-17 00:08:49'),(2,2,48.000,5.000,'2025-09-16 23:45:10'),(3,3,99.000,10.000,'2025-09-16 23:33:56');
+INSERT INTO `estoque` VALUES (1,1,44.000,5.000,'2025-09-17 00:08:49'),(2,2,48.000,5.000,'2025-09-16 23:45:10'),(3,3,95.450,10.000,'2025-09-17 01:11:07');
 /*!40000 ALTER TABLE `estoque` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -346,7 +347,7 @@ CREATE TABLE `item_pedido` (
   KEY `idx_itempedido_produto` (`produto_id`),
   CONSTRAINT `fk_itempedido_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_itempedido_produto` FOREIGN KEY (`produto_id`) REFERENCES `produto` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Itens de pedido';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Itens de pedido';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -355,7 +356,7 @@ CREATE TABLE `item_pedido` (
 
 LOCK TABLES `item_pedido` WRITE;
 /*!40000 ALTER TABLE `item_pedido` DISABLE KEYS */;
-INSERT INTO `item_pedido` VALUES (3,1,1,2.000,NULL,50.00,0.00),(4,1,2,1.000,NULL,20.00,0.00),(5,2,1,2.000,NULL,50.00,NULL),(6,2,2,1.000,NULL,20.00,NULL),(7,2,3,1.000,NULL,3.99,NULL),(8,3,1,1.000,NULL,50.00,NULL),(9,4,1,2.000,NULL,50.00,NULL),(10,4,2,1.000,NULL,20.00,NULL),(11,5,1,1.000,NULL,50.00,NULL);
+INSERT INTO `item_pedido` VALUES (3,1,1,2.000,NULL,50.00,0.00),(4,1,2,1.000,NULL,20.00,0.00),(5,2,1,2.000,NULL,50.00,NULL),(6,2,2,1.000,NULL,20.00,NULL),(7,2,3,1.000,NULL,3.99,NULL),(8,3,1,1.000,NULL,50.00,NULL),(9,4,1,2.000,NULL,50.00,NULL),(10,4,2,1.000,NULL,20.00,NULL),(11,5,1,1.000,NULL,50.00,NULL),(12,6,3,3.550,NULL,3.99,NULL);
 /*!40000 ALTER TABLE `item_pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -435,7 +436,7 @@ CREATE TABLE `mov_estoque` (
   PRIMARY KEY (`id`),
   KEY `idx_movestoque_produto` (`produto_id`,`criado_em`),
   CONSTRAINT `fk_movestoque_produto` FOREIGN KEY (`produto_id`) REFERENCES `produto` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Movimentações de estoque';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Movimentações de estoque';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,7 +445,7 @@ CREATE TABLE `mov_estoque` (
 
 LOCK TABLES `mov_estoque` WRITE;
 /*!40000 ALTER TABLE `mov_estoque` DISABLE KEYS */;
-INSERT INTO `mov_estoque` VALUES (1,1,'saida',2.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(2,2,'saida',1.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(3,3,'saida',1.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(4,1,'saida',1.000,'pedido',3,'Saida por venda','2025-09-16 23:35:06'),(5,1,'saida',2.000,'pedido',4,'Saida por venda','2025-09-16 23:45:10'),(6,2,'saida',1.000,'pedido',4,'Saida por venda','2025-09-16 23:45:10'),(7,1,'saida',1.000,'pedido',5,'Saida por venda','2025-09-17 00:08:49');
+INSERT INTO `mov_estoque` VALUES (1,1,'saida',2.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(2,2,'saida',1.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(3,3,'saida',1.000,'pedido',2,'Saida por venda','2025-09-16 23:33:56'),(4,1,'saida',1.000,'pedido',3,'Saida por venda','2025-09-16 23:35:06'),(5,1,'saida',2.000,'pedido',4,'Saida por venda','2025-09-16 23:45:10'),(6,2,'saida',1.000,'pedido',4,'Saida por venda','2025-09-16 23:45:10'),(7,1,'saida',1.000,'pedido',5,'Saida por venda','2025-09-17 00:08:49'),(8,3,'saida',3.550,'pedido',6,'Saida por venda','2025-09-17 01:11:07');
 /*!40000 ALTER TABLE `mov_estoque` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -476,7 +477,7 @@ CREATE TABLE `pedido` (
   KEY `idx_pedido_status_data` (`status`,`criado_em`),
   CONSTRAINT `fk_pedido_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_pedido_endereco` FOREIGN KEY (`endereco_id`) REFERENCES `endereco` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pedidos da loja (online/retirada)';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pedidos da loja (online/retirada)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -485,7 +486,7 @@ CREATE TABLE `pedido` (
 
 LOCK TABLES `pedido` WRITE;
 /*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
-INSERT INTO `pedido` VALUES (1,5,1,'novo','entrega','pix',120.00,10.00,0.00,130.00,'PED-0001','2025-09-13 02:38:18','2025-09-13 02:43:43'),(2,2,NULL,'novo','retirada','pix',123.99,0.00,0.00,123.99,NULL,'2025-09-16 23:33:56','2025-09-16 23:33:56'),(3,2,NULL,'novo','retirada','na_entrega',50.00,0.00,0.00,50.00,NULL,'2025-09-16 23:35:06','2025-09-16 23:35:06'),(4,2,1,'novo','entrega','na_entrega',120.00,0.00,0.00,120.00,NULL,'2025-09-16 23:45:10','2025-09-16 23:45:10'),(5,2,NULL,'novo','retirada','na_entrega',50.00,0.00,0.00,50.00,NULL,'2025-09-17 00:08:49','2025-09-17 00:08:49');
+INSERT INTO `pedido` VALUES (1,5,1,'novo','entrega','pix',120.00,10.00,0.00,130.00,'PED-0001','2025-09-13 02:38:18','2025-09-13 02:43:43'),(2,2,NULL,'novo','retirada','pix',123.99,0.00,0.00,123.99,NULL,'2025-09-16 23:33:56','2025-09-16 23:33:56'),(3,2,NULL,'novo','retirada','na_entrega',50.00,0.00,0.00,50.00,NULL,'2025-09-16 23:35:06','2025-09-16 23:35:06'),(4,2,1,'novo','entrega','na_entrega',120.00,0.00,0.00,120.00,NULL,'2025-09-16 23:45:10','2025-09-16 23:45:10'),(5,2,NULL,'novo','retirada','na_entrega',50.00,0.00,0.00,50.00,NULL,'2025-09-17 00:08:49','2025-09-17 00:08:49'),(6,5,NULL,'novo','retirada','na_entrega',14.16,0.00,0.00,14.16,NULL,'2025-09-17 01:11:07','2025-09-17 01:11:07');
 /*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -645,7 +646,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (1,'Operador','operador@mercado.local','18c897bfc3cfce2b6d13cb154176b52b45253de6d82abe848a79d90f81e4f441','operador',1,'2025-09-10 22:40:01'),(2,'Administrador','admin@mercado.local','a14b819a2867d23c914df366addc22a5567d341b61b393878e476846d1b39e2c','admin',1,'2025-09-10 22:40:44'),(3,'Douglas','douglas.monquero@gmail.com','$2y$10$C3CTohQJfarGZZt9I1ZSs.Vde/Tbz1Y8GKsDAgFqHOBYh3esqSlYm','admin',1,'2025-09-10 22:45:37'),(4,'Patricia Alves de Oliveira','paty@gatinha.com.br','$2y$10$I5Oyd5DlUqmml0JsV/5c3uGBi8UCv.ScW73U.LE5ukslxtUkQt4X.','cliente',1,'2025-09-10 22:46:41'),(5,'Lucas Vinicius','lucas@email.com','$2y$10$INlbktG5YUVvhJbEyyVSwO5f9inu1C6L.kKRQi3ocVHyEzzgUUU62','cliente',1,'2025-09-12 22:52:31');
+INSERT INTO `usuario` VALUES (1,'João Ferlini','operador@mercado.local','18c897bfc3cfce2b6d13cb154176b52b45253de6d82abe848a79d90f81e4f441','operador',1,'2025-09-10 22:40:01'),(2,'Administrador','admin@mercado.local','a14b819a2867d23c914df366addc22a5567d341b61b393878e476846d1b39e2c','admin',1,'2025-09-10 22:40:44'),(3,'Douglas','douglas.monquero@gmail.com','$2y$10$C3CTohQJfarGZZt9I1ZSs.Vde/Tbz1Y8GKsDAgFqHOBYh3esqSlYm','admin',1,'2025-09-10 22:45:37'),(4,'Patricia Alves de Oliveira','paty@gatinha.com.br','$2y$10$I5Oyd5DlUqmml0JsV/5c3uGBi8UCv.ScW73U.LE5ukslxtUkQt4X.','cliente',1,'2025-09-10 22:46:41'),(5,'Lucas Vinicius','lucas@email.com','$2y$10$INlbktG5YUVvhJbEyyVSwO5f9inu1C6L.kKRQi3ocVHyEzzgUUU62','cliente',1,'2025-09-12 22:52:31');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -658,4 +659,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-16 22:04:50
+-- Dump completed on 2025-09-16 23:42:55
