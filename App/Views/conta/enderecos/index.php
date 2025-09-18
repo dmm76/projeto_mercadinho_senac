@@ -13,7 +13,7 @@ $enderecos = $enderecos ?? [];
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title><?= htmlspecialchars($title ?? 'Endereços') ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
   <style>
@@ -119,7 +119,7 @@ $enderecos = $enderecos ?? [];
      <?php require __DIR__ . '/../../partials/footer.php'; ?>
 
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
   <script src="<?= Url::to('/assets/site/js/script.js') ?>"></script>
 </body>
 

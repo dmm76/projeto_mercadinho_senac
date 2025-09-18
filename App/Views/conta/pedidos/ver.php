@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Core\Url;
 
@@ -46,14 +46,14 @@ function status_badge(string $s): string
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Pedido #<?= (int)$pedido['id'] ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
     <style>
-    .sidebar-sticky {
-        position: sticky;
-        top: 1rem
-    }
+        .sidebar-sticky {
+            position: sticky;
+            top: 1rem
+        }
     </style>
 </head>
 
@@ -115,34 +115,34 @@ function status_badge(string $s): string
                             <div class="card-header bg-white"><strong>Itens</strong></div>
                             <div class="card-body p-0">
                                 <?php if (!empty($itens)): ?>
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover align-middle mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Produto</th>
-                                                <th class="text-end">Qtd</th>
-                                                <th class="text-end">Preço</th>
-                                                <th class="text-end">Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($itens as $i): ?>
-                                            <tr>
-                                                <td><?= (int)$i['produto_id'] ?></td>
-                                                <td><?= htmlspecialchars($i['nome']) ?></td>
-                                                <td class="text-end"><?= (int)$i['quantidade'] ?></td>
-                                                <td class="text-end">R$
-                                                    <?= number_format((float)$i['preco'], 2, ',', '.') ?></td>
-                                                <td class="text-end">R$
-                                                    <?= number_format((float)$i['subtotal'], 2, ',', '.') ?></td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Produto</th>
+                                                    <th class="text-end">Qtd</th>
+                                                    <th class="text-end">Preço</th>
+                                                    <th class="text-end">Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($itens as $i): ?>
+                                                    <tr>
+                                                        <td><?= (int)$i['produto_id'] ?></td>
+                                                        <td><?= htmlspecialchars($i['nome']) ?></td>
+                                                        <td class="text-end"><?= (int)$i['quantidade'] ?></td>
+                                                        <td class="text-end">R$
+                                                            <?= number_format((float)$i['preco'], 2, ',', '.') ?></td>
+                                                        <td class="text-end">R$
+                                                            <?= number_format((float)$i['subtotal'], 2, ',', '.') ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 <?php else: ?>
-                                <div class="p-3">Sem itens para este pedido.</div>
+                                    <div class="p-3">Sem itens para este pedido.</div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -155,7 +155,7 @@ function status_badge(string $s): string
         <?php require dirname(__DIR__, 2) . '/partials/footer.php'; ?>
 
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
     <script src="<?= Url::to('/assets/site/js/script.js') ?>"></script>
 </body>
 

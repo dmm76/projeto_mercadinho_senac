@@ -2,9 +2,10 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8"/>
+  <meta name="description" content="Mercadinho Borba Gato: supermercado online com ofertas atualizadas, entrega rapida e catalogo completo de produtos para o dia a dia."/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title><?= htmlspecialchars($title ?? 'Entrar') ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
 </head>
 <body class="bg-light">
@@ -26,12 +27,12 @@
       <form method="post" action="<?= \App\Core\Url::to('/login') ?>" class="mb-3">
         <input type="hidden" name="csrf" value="<?= \App\Core\Csrf::token() ?>">
         <div class="mb-3">
-          <label class="form-label">E-mail</label>
-          <input type="email" name="email" class="form-control" placeholder="voce@exemplo.com" required>
+          <label class="form-label" for="login-email">E-mail</label>
+          <input id="login-email" type="email" name="email" class="form-control" placeholder="voce@exemplo.com" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Senha</label>
-          <input type="password" name="password" class="form-control" required>
+          <label class="form-label" for="login-password">Senha</label>
+          <input id="login-password" type="password" name="password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-danger px-4">Entrar</button>
         <a href="<?= \App\Core\Url::to('/registrar') ?>" class="btn btn-link">Criar conta</a>
@@ -42,6 +43,10 @@
   <?php require __DIR__ . '/../../partials/footer.php'; ?>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
 </body>
 </html>
+
+
+
+

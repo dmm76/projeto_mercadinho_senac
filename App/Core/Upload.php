@@ -12,7 +12,7 @@ final class Upload
         $sizeRaw = $file['size'] ?? null;
 
         if (!is_string($tmp) || $tmp === '' || !is_uploaded_file($tmp)) {
-            throw new \RuntimeException('Arquivo inválido.');
+            throw new \RuntimeException('Arquivo invalido.');
         }
 
         // --- normaliza size para int (sem cast de mixed) ---
@@ -21,27 +21,30 @@ final class Upload
         } elseif (is_string($sizeRaw) && preg_match('/^\d+$/', $sizeRaw) === 1) {
             $size = (int) $sizeRaw;
         } else {
-            throw new \RuntimeException('Tamanho de arquivo inválido.');
+            throw new \RuntimeException('Tamanho de arquivo invalido.');
         }
         // ---------------------------------------------------
 
         if ($size > $maxBytes) {
-            throw new \RuntimeException('Arquivo grande demais (máx 2MB).');
+            throw new \RuntimeException('Arquivo grande demais (max 2MB).');
         }
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($tmp);
         if ($mime === false) {
-            throw new \RuntimeException('Não foi possível detectar o MIME.');
+            throw new \RuntimeException('Nao foi possivel detectar o MIME.');
         }
 
         $ext = match ($mime) {
             'image/jpeg' => 'jpg',
             'image/png'  => 'png',
-            default      => throw new \RuntimeException('Formato não permitido (JPG/PNG).'),
+            'image/webp' => 'webp',
+            default      => throw new \RuntimeException('Formato nao permitido (JPG/PNG/WebP).'),
         };
 
-        if (!is_dir($destDir)) { @mkdir($destDir, 0775, true); }
+        if (!is_dir($destDir)) {
+            @mkdir($destDir, 0775, true);
+        }
 
         $name   = bin2hex(random_bytes(8)) . '-' . time() . '.' . $ext;
         $target = rtrim($destDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $name;

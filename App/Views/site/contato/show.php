@@ -10,11 +10,12 @@ $csrfToken = isset($csrfToken) ? (string)$csrfToken : '';
 <html lang="pt-br">
 <head>
   <meta charset="utf-8"/>
+  <meta name="description" content="Mercadinho Borba Gato: supermercado online com ofertas atualizadas, entrega rapida e catalogo completo de produtos para o dia a dia."/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title><?= htmlspecialchars($title ?? 'Contato | Mercadinho Borba Gato') ?></title>
 
   <!-- Bootstrap (CDN) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>"/>
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
   <!-- Seu CSS -->
@@ -115,7 +116,7 @@ $csrfToken = isset($csrfToken) ? (string)$csrfToken : '';
 </div>
 
 <!-- Bootstrap JS (CDN) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
 <!-- Seu JS -->
 <script src="<?= \App\Core\Url::to('/assets/site/js/script.js') ?>"></script>
 <script>
@@ -135,3 +136,5 @@ $csrfToken = isset($csrfToken) ? (string)$csrfToken : '';
 </script>
 </body>
 </html>
+
+

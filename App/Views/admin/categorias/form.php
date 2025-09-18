@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= htmlspecialchars($title ?? 'Categoria') ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>">
 </head>
 <body>
 <div class="container py-4" style="max-width:640px">
@@ -25,24 +25,24 @@
     <?php endif; ?>
 
     <div class="mb-3">
-      <label class="form-label">Nome</label>
-      <input class="form-control" type="text" name="nome" required value="<?= $isEdit ? htmlspecialchars($categoria->nome) : '' ?>">
+      <label class="form-label" for="categoria-nome">Nome</label>
+      <input id="categoria-nome" class="form-control" type="text" name="nome" required value="<?= $isEdit ? htmlspecialchars($categoria->nome) : '' ?>">
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Slug</label>
-      <input class="form-control" type="text" name="slug" placeholder="auto se vazio" value="<?= $isEdit ? htmlspecialchars($categoria->slug) : '' ?>">
+      <label class="form-label" for="categoria-slug">Slug</label>
+      <input id="categoria-slug" class="form-control" type="text" name="slug" placeholder="auto se vazio" value="<?= $isEdit ? htmlspecialchars($categoria->slug) : '' ?>">
     </div>
 
     <div class="row g-2 mb-3">
       <div class="col-6">
-        <label class="form-label">Ordem</label>
-        <input class="form-control" type="number" name="ordem" value="<?= $isEdit && $categoria->ordem!==null ? (int)$categoria->ordem : '' ?>">
+        <label class="form-label" for="categoria-ordem">Ordem</label>
+        <input id="categoria-ordem" class="form-control" type="number" name="ordem" value="<?= $isEdit && $categoria->ordem!==null ? (int)$categoria->ordem : '' ?>">
       </div>
       <div class="col-6 d-flex align-items-end">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="ativa" id="ativa" <?= $isEdit ? ($categoria->ativa ? 'checked' : '') : 'checked' ?>>
-          <label class="form-check-label" for="ativa">Ativa</label>
+          <input class="form-check-input" type="checkbox" name="ativa" id="categoria-ativa" <?= $isEdit ? ($categoria->ativa ? 'checked' : '') : 'checked' ?>>
+          <label class="form-check-label" for="categoria-ativa">Ativa</label>
         </div>
       </div>
     </div>

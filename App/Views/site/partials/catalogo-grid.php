@@ -18,33 +18,33 @@ $favoritosOnly = !empty($filters['favoritos']);
 $baseUrl = Url::to($catalogBasePath);
 
 $baseQuery = [
-    'q' => $qAtual,
-    'ordem' => $ordemAtual,
+  'q' => $qAtual,
+  'ordem' => $ordemAtual,
 ];
 if ($favoritosOnly) {
-    $baseQuery['favoritos'] = '1';
+  $baseQuery['favoritos'] = '1';
 }
 
 $buildLink = function (array $overrides = []) use ($baseUrl, $baseQuery): string {
-    $query = array_merge($baseQuery, $overrides);
-    if (isset($query['q']) && $query['q'] === '') {
-        unset($query['q']);
-    }
-    if (isset($query['favoritos']) && (!$query['favoritos'] || $query['favoritos'] === '0')) {
-        unset($query['favoritos']);
-    }
-    if (isset($query['page']) && ((int)$query['page']) <= 1) {
-        unset($query['page']);
-    }
-    $qs = http_build_query($query);
-    return $baseUrl . ($qs !== '' ? ('?' . $qs) : '');
+  $query = array_merge($baseQuery, $overrides);
+  if (isset($query['q']) && $query['q'] === '') {
+    unset($query['q']);
+  }
+  if (isset($query['favoritos']) && (!$query['favoritos'] || $query['favoritos'] === '0')) {
+    unset($query['favoritos']);
+  }
+  if (isset($query['page']) && ((int)$query['page']) <= 1) {
+    unset($query['page']);
+  }
+  $qs = http_build_query($query);
+  return $baseUrl . ($qs !== '' ? ('?' . $qs) : '');
 };
 
 $orderOptions = [
-    'novidades' => 'Novidades',
-    'nome' => 'Nome (A-Z)',
-    'preco_asc' => 'Menor preco',
-    'preco_desc' => 'Maior preco',
+  'novidades' => 'Novidades',
+  'nome' => 'Nome (A-Z)',
+  'preco_asc' => 'Menor preco',
+  'preco_desc' => 'Maior preco',
 ];
 
 $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
@@ -65,12 +65,12 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
 
 <form class="row gy-2 gx-2 align-items-end mb-3" method="get" action="<?= $baseUrl ?>">
   <div class="col-12 col-md-5 col-lg-4">
-    <label class="form-label mb-1">Buscar produtos</label>
-    <input type="text" name="q" class="form-control" placeholder="Digite o nome, SKU ou descricao">
+    <label class="form-label mb-1" for="catalogo-busca">Buscar produtos</label>
+    <input id="catalogo-busca" type="text" name="q" value="<?= $h($qAtual) ?>" class="form-control" placeholder="Digite o nome, SKU ou descricao">
   </div>
   <div class="col-12 col-sm-6 col-md-3 col-lg-3">
-    <label class="form-label mb-1">Ordenar por</label>
-    <select class="form-select" name="ordem">
+    <label class="form-label mb-1" for="catalogo-ordem">Ordenar por</label>
+    <select class="form-select" name="ordem" id="catalogo-ordem">
       <?php foreach ($orderOptions as $value => $label): ?>
         <option value="<?= $value ?>" <?= $ordemAtual === $value ? 'selected' : '' ?>><?= $label ?></option>
       <?php endforeach; ?>
@@ -79,7 +79,8 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
   <?php if ($clienteId): ?>
     <div class="col-12 col-sm-6 col-md-3 col-lg-3">
       <div class="form-check mt-4">
-        <input class="form-check-input" type="checkbox" value="1" id="favoritosCheck" name="favoritos" <?= $favoritosOnly ? 'checked' : '' ?>>
+        <input class="form-check-input" type="checkbox" value="1" id="favoritosCheck" name="favoritos"
+          <?= $favoritosOnly ? 'checked' : '' ?>>
         <label class="form-check-label" for="favoritosCheck">Somente favoritos</label>
       </div>
     </div>
@@ -127,21 +128,24 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
           </form>
 
           <a href="<?= Url::to('/produtos/' . $id) ?>" class="text-decoration-none">
-            <img src="<?= $h($imagem) ?>" class="card-img-top" alt="<?= $h($nome) ?>" style="object-fit:cover;height:190px;">
+            <img src="<?= $h($imagem) ?>" class="card-img-top" alt="<?= $h($nome) ?>"
+              style="object-fit:cover;height:190px;">
           </a>
 
           <div class="card-body d-flex flex-column">
             <div class="mb-2">
               <span class="fs-5 text-danger fw-semibold">R$ <?= number_format($precoAtual, 2, ',', '.') ?></span>
               <?php if ($precoVenda > 0 && $precoAtual < $precoVenda): ?>
-                <small class="text-muted text-decoration-line-through ms-1">R$ <?= number_format($precoVenda, 2, ',', '.') ?></small>
+                <small class="text-muted text-decoration-line-through ms-1">R$
+                  <?= number_format($precoVenda, 2, ',', '.') ?></small>
               <?php endif; ?>
               <?php if ($isKg): ?>
                 <small class="text-muted"> / kg</small>
               <?php endif; ?>
             </div>
             <h5 class="card-title fw-semibold"><?= $h($nome) ?></h5>
-            <p class="card-text text-muted flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">
+            <p class="card-text text-muted flex-grow-1"
+              style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">
               <?= $descricao !== '' ? $h($descricao) : '&nbsp;' ?>
             </p>
             <div class="mt-auto">
@@ -149,7 +153,9 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
                 <?= Csrf::input() ?>
                 <div class="input-group input-group-sm">
                   <span class="input-group-text">Qtd</span>
-                  <input type="number" name="quantidade" class="form-control" value="<?= number_format($valorInicial, $step === 1 ? 0 : 3, '.', '') ?>" min="<?= $step ?>" step="<?= $step ?>">
+                  <input type="number" name="quantidade" class="form-control" aria-label="Quantidade para <?= $h($nome) ?>"
+                    value="<?= number_format($valorInicial, $step === 1 ? 0 : 3, '.', '') ?>"
+                    min="<?= $step ?>" step="<?= $step ?>">
                   <?php if ($isKg): ?>
                     <span class="input-group-text">kg</span>
                   <?php endif; ?>
@@ -169,26 +175,28 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
   </div>
 
   <?php
-    $totalPages = (int)($pagination['pages'] ?? 0);
-    $currentPage = (int)($pagination['page'] ?? 1);
-    if ($totalPages > 1):
-      $start = max(1, $currentPage - 2);
-      $end = min($totalPages, $currentPage + 2);
-      if ($start > 1) {
-        $start = max(1, $end - 4);
-      }
-      if ($end - $start < 4) {
-        $end = min($totalPages, $start + 4);
-      }
+  $totalPages = (int)($pagination['pages'] ?? 0);
+  $currentPage = (int)($pagination['page'] ?? 1);
+  if ($totalPages > 1):
+    $start = max(1, $currentPage - 2);
+    $end = min($totalPages, $currentPage + 2);
+    if ($start > 1) {
+      $start = max(1, $end - 4);
+    }
+    if ($end - $start < 4) {
+      $end = min($totalPages, $start + 4);
+    }
   ?>
     <nav class="mt-4" aria-label="Paginacao de produtos">
       <ul class="pagination pagination-sm justify-content-center">
         <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
-          <a class="page-link" href="<?= $currentPage <= 1 ? '#' : $buildLink(['page' => $currentPage - 1]) ?>" tabindex="<?= $currentPage <= 1 ? '-1' : '0' ?>">Anterior</a>
+          <a class="page-link" href="<?= $currentPage <= 1 ? '#' : $buildLink(['page' => $currentPage - 1]) ?>"
+            tabindex="<?= $currentPage <= 1 ? '-1' : '0' ?>">Anterior</a>
         </li>
         <?php if ($start > 1): ?>
           <li class="page-item"><a class="page-link" href="<?= $buildLink(['page' => 1]) ?>">1</a></li>
-          <?php if ($start > 2): ?><li class="page-item disabled"><span class="page-link">&hellip;</span></li><?php endif; ?>
+          <?php if ($start > 2): ?><li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+          <?php endif; ?>
         <?php endif; ?>
         <?php for ($i = $start; $i <= $end; $i++): ?>
           <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
@@ -196,13 +204,18 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
           </li>
         <?php endfor; ?>
         <?php if ($end < $totalPages): ?>
-          <?php if ($end < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">&hellip;</span></li><?php endif; ?>
-          <li class="page-item"><a class="page-link" href="<?= $buildLink(['page' => $totalPages]) ?>"><?= $totalPages ?></a></li>
+          <?php if ($end < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+          <?php endif; ?>
+          <li class="page-item"><a class="page-link"
+              href="<?= $buildLink(['page' => $totalPages]) ?>"><?= $totalPages ?></a></li>
         <?php endif; ?>
         <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
-          <a class="page-link" href="<?= $currentPage >= $totalPages ? '#' : $buildLink(['page' => $currentPage + 1]) ?>" tabindex="<?= $currentPage >= $totalPages ? '-1' : '0' ?>">Proxima</a>
+          <a class="page-link"
+            href="<?= $currentPage >= $totalPages ? '#' : $buildLink(['page' => $currentPage + 1]) ?>"
+            tabindex="<?= $currentPage >= $totalPages ? '-1' : '0' ?>">Próxima</a>
         </li>
       </ul>
     </nav>
   <?php endif; ?>
 <?php endif; ?>
+

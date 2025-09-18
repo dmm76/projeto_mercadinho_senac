@@ -23,7 +23,7 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title><?= htmlspecialchars($title ?? 'Meus Dados') ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
     <style>
@@ -65,18 +65,18 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
                                         <form method="post" action="<?= $perfilAction ?>">
                                             <?= Csrf::input() ?>
                                             <div class="mb-3">
-                                                <label class="form-label">Nome</label>
-                                                <input type="text" name="nome" class="form-control" value="<?= $nome ?>"
+                                                <label class="form-label" for="conta-nome">Nome</label>
+                                                <input id="conta-nome" type="text" name="nome" class="form-control" value="<?= $nome ?>"
                                                     required maxlength="120">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">E-mail</label>
-                                                <input type="email" class="form-control" value="<?= $email ?>" disabled>
+                                                <label class="form-label" for="conta-email">E-mail</label>
+                                                <input id="conta-email" type="email" class="form-control" value="<?= $email ?>" disabled>
                                                 <div class="form-text">Para alterar o e-mail, contate o suporte.</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Telefone (opcional)</label>
-                                                <input type="text" name="telefone" class="form-control"
+                                                <label class="form-label" for="conta-telefone">Telefone (opcional)</label>
+                                                <input id="conta-telefone" type="text" name="telefone" class="form-control"
                                                     value="<?= $tel ?>" placeholder="(11) 91234-5678" maxlength="20"
                                                     pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$">
                                             </div>
@@ -98,18 +98,18 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
                                         <form method="post" action="<?= $senhaAction ?>">
                                             <?= Csrf::input() ?>
                                             <div class="mb-3">
-                                                <label class="form-label">Senha atual</label>
-                                                <input type="password" name="senha_atual" class="form-control" required>
+                                                <label class="form-label" for="conta-senha-atual">Senha atual</label>
+                                                <input id="conta-senha-atual" type="password" name="senha_atual" class="form-control" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Nova senha</label>
-                                                <input type="password" name="senha" class="form-control" required
+                                                <label class="form-label" for="conta-senha-nova">Nova senha</label>
+                                                <input id="conta-senha-nova" type="password" name="senha" class="form-control" required
                                                     minlength="6">
                                                 <div class="form-text">Mínimo de 6 caracteres.</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Confirmar nova senha</label>
-                                                <input type="password" name="senha2" class="form-control" required
+                                                <label class="form-label" for="conta-senha-confirma">Confirmar nova senha</label>
+                                                <input id="conta-senha-confirma" type="password" name="senha2" class="form-control" required
                                                     minlength="6">
                                             </div>
                                             <button class="btn btn-outline-primary" type="submit">Atualizar
@@ -128,8 +128,9 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
          <?php require __DIR__ . '/../../partials/footer.php'; ?>
 
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
     <script src="<?= Url::to('/assets/site/js/script.js') ?>"></script>
 </body>
 
 </html>
+
