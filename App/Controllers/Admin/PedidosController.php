@@ -75,8 +75,10 @@ SQL;
         }
 
         if ($filters['q'] !== '') {
-            $sql .= ' AND (u.nome LIKE :q OR e.nome LIKE :q OR p.id = :idq)';
-            $params[':q'] = "%{$filters['q']}%";
+            $sql .= ' AND (u.nome LIKE :qNome OR e.nome LIKE :qEndereco OR p.id = :idq)';
+            $likeValue = "%{$filters['q']}%";
+            $params[':qNome'] = $likeValue;
+            $params[':qEndereco'] = $likeValue;
             $params[':idq'] = ctype_digit($filters['q']) ? (int)$filters['q'] : 0;
         }
 
@@ -115,7 +117,7 @@ SQL;
     {
         $pedido = $this->loadPedido($id);
         if ($pedido === null) {
-            Flash::set('error', 'Pedido n\u00e3o encontrado.');
+            Flash::set('error', 'Pedido nao encontrado.');
             $this->redirect('/admin/pedidos');
         }
 
@@ -147,12 +149,12 @@ SQL;
     {
         $statusInfo = $this->getStatus($id);
         if ($statusInfo === null) {
-            Flash::set('error', 'Pedido n\u00e3o encontrado.');
+            Flash::set('error', 'Pedido nao encontrado.');
             $this->redirect('/admin/pedidos');
         }
 
         if (!in_array($statusInfo['normalized'], $allowedCurrent, true)) {
-            Flash::set('error', 'Transi\u00e7\u00e3o de status n\u00e3o permitida para este pedido.');
+            Flash::set('error', 'Transicao de status nao permitida para este pedido.');
             $this->redirect('/admin/pedidos/' . $id);
         }
 
@@ -166,7 +168,7 @@ SQL;
             ]);
             Flash::set('success', $successMessage);
         } catch (PDOException $e) {
-            Flash::set('error', 'N\u00e3o foi poss\u00edvel atualizar o status do pedido.');
+            Flash::set('error', 'Nao foi possivel atualizar o status do pedido.');
         }
 
         $this->redirect('/admin/pedidos/' . $id);
@@ -273,7 +275,7 @@ SQL;
                 }
             }
         } catch (\Throwable $e) {
-            // ignora: se n\u00e3o conseguir detectar, mantemos lista vazia
+            // ignora: se nao conseguir detectar, mantemos lista vazia
         }
         return [];
     }

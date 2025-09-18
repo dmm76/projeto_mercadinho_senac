@@ -5,15 +5,33 @@ use App\Core\Url;
 $pedidos = $pedidos ?? [];
 $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 $statusBadge = static function (string $status) use ($h): string {
-    $map = [
-        'pago'      => 'success',
-        'enviado'   => 'primary',
-        'pendente'  => 'warning',
-        'cancelado' => 'secondary',
-        'novo'      => 'secondary',
+    $key = strtolower(trim($status));
+    $styles = [
+        'pendente' => 'bg-warning text-dark',
+        'aguardando_pagamento' => 'bg-warning text-dark',
+        'aguardando' => 'bg-warning text-dark',
+        'pago' => 'bg-success text-white',
+        'enviado' => 'bg-primary text-white',
+        'em_transporte' => 'bg-info text-dark',
+        'em_preparo' => 'bg-info text-dark',
+        'preparando' => 'bg-info text-dark',
+        'pronto' => 'bg-secondary text-white',
+        'entregue' => 'bg-success text-white',
+        'finalizado' => 'bg-success text-white',
+        'cancelado' => 'bg-danger text-white',
+        'novo' => 'bg-secondary text-white',
     ];
-    $variant = $map[strtolower($status)] ?? 'light';
-    return '<span class="badge bg-' . $h($variant) . ' text-uppercase">' . $h($status) . '</span>';
+    $classes = $styles[$key] ?? 'bg-secondary text-white';
+
+    $label = $status !== '' ? $status : 'pendente';
+    $label = str_replace(['_', '-'], ' ', $label);
+    if (function_exists('mb_convert_case')) {
+        $label = mb_convert_case($label, MB_CASE_TITLE, 'UTF-8');
+    } else {
+        $label = ucwords(strtolower($label));
+    }
+
+    return '<span class="badge rounded-pill px-3 ' . $h($classes) . '">' . $h($label) . '</span>';
 };
 ?>
 <!doctype html>
@@ -70,7 +88,7 @@ $statusBadge = static function (string $status) use ($h): string {
                                                 <td class="text-end">R$ <?= number_format((float)($pedido['total'] ?? 0), 2, ',', '.') ?></td>
                                                 <td class="text-end">
                                                     <a href="<?= Url::to('/conta/pedidos/ver') . '?id=' . (int)($pedido['id'] ?? 0) ?>" class="btn btn-sm btn-outline-primary">Ver</a>
-                                                    <a href="<?= Url::to('/conta/pedidos/nota') . '?id=' . (int)($pedido['id'] ?? 0) ?>" class="btn btn-sm btn-outline-secondary">Nota</a>
+                                                    <a href="<?= Url::to('/conta/pedidos/nota') . '?id=' . (int)($pedido['id'] ?? 0) ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">Nota</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

@@ -19,6 +19,26 @@ $statusAtual = strtolower((string)($filters['status'] ?? ''));
   <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
   <style>
     .sidebar-sticky { position: sticky; top: 1rem; }
+    .orders-actions {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+    }
+    .orders-actions .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.8rem;
+      line-height: 1.1;
+    }
+    .table-actions-cell {
+      width: 1%;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -94,41 +114,59 @@ $statusAtual = strtolower((string)($filters['status'] ?? ''));
                   <th class="text-end">Itens</th>
                   <th class="text-end">Total</th>
                   <th class="text-end">Criado em</th>
-                  <th class="text-end">Ações</th>
+                  <th class="text-end table-actions-cell">Ações</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($pedidos as $pedido): ?>
-                  <?php $status = strtolower((string)($pedido['status'] ?? 'pendente')); ?>
+                  <?php
+                    $statusOriginal = trim((string)($pedido['status'] ?? 'pendente'));
+                    $status = strtolower($statusOriginal);
+                    $statusKey = strtolower(preg_replace('/[^a-z0-9]+/i', '_', $statusOriginal));
+                    $badgeMap = [
+                      'pendente' => 'bg-warning text-dark',
+                      'pago' => 'bg-success text-white',
+                      'enviado' => 'bg-primary text-white',
+                      'em_transporte' => 'bg-info text-dark',
+                      'transporte' => 'bg-info text-dark',
+                      'em_preparo' => 'bg-info text-dark',
+                      'preparando' => 'bg-info text-dark',
+                      'em_andamento' => 'bg-info text-dark',
+                      'pronto' => 'bg-secondary text-white',
+                      'pronto_para_retirada' => 'bg-secondary text-white',
+                      'entregue' => 'bg-success text-white',
+                      'finalizado' => 'bg-success text-white',
+                      'cancelado' => 'bg-danger text-white',
+                    ];
+                    $badgeClass = $badgeMap[$statusKey] ?? 'bg-secondary text-white';
+                    $statusLabel = $statusOriginal !== '' ? $statusOriginal : 'Pendente';
+                    if (function_exists('mb_convert_case')) {
+                      $statusLabel = mb_convert_case($statusLabel, MB_CASE_TITLE, 'UTF-8');
+                    } else {
+                      $statusLabel = ucwords(strtolower($statusLabel));
+                    }
+                  ?>
                   <tr>
                     <td><?= (int)($pedido['id'] ?? 0) ?></td>
                     <td><?= $h($pedido['cliente'] ?? '-') ?></td>
                     <td><?= $h($pedido['pagamento'] ?? 'na entrega') ?></td>
                     <td>
-                      <?php
-                        $badge = match ($status) {
-                          'pago' => 'text-bg-success',
-                          'enviado' => 'text-bg-primary',
-                          'cancelado' => 'text-bg-danger',
-                          default => 'text-bg-warning'
-                        };
-                      ?>
-                      <span class="badge <?= $badge ?>"><?= $h(ucfirst($status)) ?></span>
+                      <span class="badge rounded-pill px-3 <?= $badgeClass ?>"><?= $h($statusLabel) ?></span>
                     </td>
                     <td class="text-end"><?= (int)($pedido['qtd_itens'] ?? 0) ?></td>
                     <td class="text-end">R$ <?= number_format((float)($pedido['total'] ?? 0), 2, ',', '.') ?></td>
                     <td class="text-end"><?= $h($pedido['criado_em'] ?? '-') ?></td>
-                    <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <a class="btn btn-outline-secondary" href="<?= Url::to('/admin/pedidos/' . (int)($pedido['id'] ?? 0)) ?>">Ver</a>
+                    <td class="text-end table-actions-cell">
+                      <div class="orders-actions">
+                        <a class="btn btn-outline-secondary btn-sm" href="<?= Url::to('/admin/pedidos/' . (int)($pedido['id'] ?? 0)) ?>">Ver</a>
                         <?php if ($status === 'pendente'): ?>
-                          <a class="btn btn-outline-success" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/marcar-pago') ?>">Marcar pago</a>
+                          <a class="btn btn-outline-success btn-sm" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/marcar-pago') ?>">Marcar pago</a>
                         <?php endif; ?>
                         <?php if ($status === 'pago'): ?>
-                          <a class="btn btn-outline-primary" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/enviar') ?>">Enviar</a>
+                          <a class="btn btn-outline-primary btn-sm" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/enviar') ?>">Enviar</a>
                         <?php endif; ?>
                         <?php if ($status !== 'cancelado'): ?>
-                          <a class="btn btn-outline-danger" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/cancelar') ?>">Cancelar</a>
+                          <a class="btn btn-outline-danger btn-sm" href="<?= Url::to('/admin/pedidos/' . (int)$pedido['id'] . '/cancelar') ?>">Cancelar</a>
                         <?php endif; ?>
                       </div>
                     </td>
@@ -154,5 +192,6 @@ $statusAtual = strtolower((string)($filters['status'] ?? ''));
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 

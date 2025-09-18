@@ -72,3 +72,12 @@ App/
 ---
 
 Projeto mantido pela equipe Mercadinho Borba Gato. Contribuições e sugestões são bem-vindas!
+
+## Licenciamento
+
+Este projeto adota licenciamento duplo:
+
+- **Não comercial**: PolyForm Noncommercial 1.0.0 (ver `LICENSE`).
+- **Comercial**: disponível mediante acordo e royalties (ver `COMMERCIAL-LICENSE.md`).
+
+Para licenças comerciais, entre em contato: seuemail@exemplo.com.

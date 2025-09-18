@@ -1,0 +1,69 @@
+Licença Pública Não-Comercial – Projeto Mercadinho (v1.0)
+Copyright (c) 2025 {SEU_NOME}
+
+1. Definições
+1.1. “Software”: o código-fonte, binários, documentação e demais arquivos deste projeto.
+1.2. “Você” ou “Usuário”: qualquer pessoa física ou jurídica que obtenha uma cópia do Software.
+1.3. “Uso Comercial”: qualquer uso com finalidade lucrativa, direta ou indireta, incluindo operação em produção, oferta de serviços, revenda, SaaS, consultoria remunerada, anúncio/publicidade vinculada ao Software, ou uso interno que contribua para atividade econômica.
+1.4. “Atribuição”: menção visível a “Douglas M. Monquero – Projeto Mercadinho”, incluindo link para o repositório/website quando tecnicamente viável.
+
+2. Concessão de Direitos (Uso Não-Comercial)
+2.1. É concedida a Você licença mundial, não exclusiva, intransferível e isenta de royalties para:
+     (a) Baixar, visualizar, estudar e executar o Software;
+     (b) Fazer cópias e criar modificações e trabalhos derivados;
+     (c) Compartilhar o Software e derivados;
+     tudo exclusivamente para fins **não-comerciais**, e desde que:
+     (i) mantenha avisos de copyright e desta licença em todas as cópias/derivados;
+     (ii) inclua Atribuição adequada em telas “Sobre”, rodapés, docs ou créditos de produto/demonstração;
+     (iii) descreva mudanças relevantes quando distribuir derivados.
+
+3. Restrição a Uso Comercial
+3.1. O Uso Comercial é **proibido** sem aquisição prévia de licença comercial por escrito do titular dos direitos.
+3.2. Para obter licença comercial (royalties), contate: douglas.monquero@gmail.com. Termos padrão em “COMMERCIAL-LICENSE.md”.
+
+4. Propriedade Intelectual e Patentes
+4.1. Exceto pelo que é expressamente licenciado aqui, todos os direitos são reservados.
+4.2. Concessão limitada de patentes (não-comercial): o licenciante concede licença de patentes necessária para uso não-comercial do Software, restrita a reivindicações de patentes que seriam infringidas pelo uso permitido pela Seção 2. Não cobre Uso Comercial.
+4.3. Se Você iniciar ação de violação de patente contra o licenciante ou contribuintes alegando que o Software infringe patente sua, a licença aqui concedida é automaticamente encerrada.
+
+5. Marcas
+5.1. Esta licença não concede direitos sobre marcas, nomes comerciais, logotipos ou aparência comercial do licenciante.
+
+6. Distribuição
+6.1. Ao redistribuir o Software (original ou modificado) para fins não-comerciais, Você deve:
+     (a) incluir integralmente este texto de licença;
+     (b) manter avisos de copyright e Atribuição;
+     (c) indicar modificações substanciais realizadas.
+6.2. Repositórios públicos de derivados devem incluir referência clara a esta licença e ao projeto original.
+
+7. Suporte e Contribuições
+7.1. Não há obrigação de suporte, manutenção ou atualização.
+7.2. Contribuições enviadas por Você podem ser incorporadas ao Software sob os termos desta licença; ao contribuir, Você declara possuir direitos para tanto.
+
+8. Vigência e Encerramento
+8.1. Esta licença entra em vigor na data em que Você obtém o Software e permanece válida enquanto Você cumprir seus termos.
+8.2. Qualquer violação material encerra automaticamente esta licença para Você. Após encerramento, Você deve cessar uso e distribuição do Software, exceto para cópias armazenadas apenas para fins de arquivo/backup sem uso posterior.
+
+9. Sem Garantias
+9.1. O Software é fornecido “NO ESTADO EM QUE SE ENCONTRA”, sem garantias de qualquer tipo, expressas ou implícitas, incluindo, sem limitação, garantias de comerciabilidade, adequação a um fim específico, não violação, disponibilidade ou ausência de erros.
+
+10. Limitação de Responsabilidade
+10.1. Em nenhuma hipótese o licenciante será responsável por quaisquer danos indiretos, incidentais, especiais, exemplares, consequentes, perda de lucros, receitas, dados ou uso, ainda que avisado da possibilidade desses danos.
+10.2. A responsabilidade total agregada do licenciante por quaisquer reivindicações relacionadas a este Software será limitada ao valor que Você pagou ao licenciante por uma licença comercial aplicável (se houver), nos 12 meses anteriores ao evento que deu origem à responsabilidade.
+
+11. Cumprimento e Medidas
+11.1. O licenciante pode adotar medidas para coibir Uso Comercial não autorizado, incluindo notificações, suspensão de acesso a serviços, e medidas judiciais cabíveis.
+11.2. Nada nesta licença impede o licenciante de oferecer o Software sob outros termos a terceiros.
+
+12. Lei Aplicável e Foro
+12.1. Salvo acordo escrito em contrário, esta licença será regida pelas leis do Brasil. Fica eleito o foro da comarca de Maringá/PR, com renúncia de qualquer outro, por mais privilegiado que seja.
+
+13. Integração e Alterações
+13.1. Esta licença constitui o acordo integral quanto ao uso não-comercial do Software.
+13.2. Alterações só terão validade se feitas por escrito pelo licenciante e publicadas no repositório oficial do projeto, aplicando-se apenas prospectivamente.
+
+14. Contato para Licença Comercial
+14.1. E-mail: douglas.monquero@gmail.com
+14.2. Termos de royalties: ver arquivo “COMMERCIAL-LICENSE.md”.
+
+-- FIM --

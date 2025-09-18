@@ -13,7 +13,7 @@ use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
 
 /**
- * SITE (pÃƒÂºblico)
+ * SITE (pÃƒÆ’Ã‚Âºblico)
  */
 $router->get('/', [HomeController::class, 'index']);
 
@@ -55,6 +55,8 @@ $router->get('/conta',                      [ContaController::class, 'dashboard'
 $router->get('/conta/pedidos',              [ContaController::class, 'pedidos']);
 $router->get('/conta/pedidos/(\d+)',        [ContaController::class, 'verPedido']);
 $router->get('/conta/pedidos/ver',          [ContaController::class, 'verPedidoQuery']); // legado ?id=
+$router->get('/conta/pedidos/nota',         [ContaController::class, 'notaPedidoQuery']); // nota com ?id=
+$router->get('/conta/pedidos/nota/(\d+)', [ContaController::class, 'notaPedido']);
 
 $router->get('/conta/dados',                [ContaController::class, 'dados']);
 $router->post('/conta/dados/perfil',        [ContaController::class, 'salvarPerfil']);
@@ -115,3 +117,6 @@ $router->get('/health/autoload', function (): void {
         && class_exists(\App\Model\Usuario::class);
     echo $ok ? 'AUTOLOAD OK' : 'AUTOLOAD FAIL';
 });
+
+
+

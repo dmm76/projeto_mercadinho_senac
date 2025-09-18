@@ -66,8 +66,11 @@ final class Produto
         $where = ['p.ativo = 1'];
         $bindings = [];
         if ($q !== '') {
-            $where[] = '(p.nome LIKE :busca OR p.descricao LIKE :busca OR p.sku LIKE :busca)';
-            $bindings[':busca'] = '%' . $q . '%';
+            $where[] = '(p.nome LIKE :buscaNome OR p.descricao LIKE :buscaDescricao OR p.sku LIKE :buscaSku)';
+            $valorBusca = '%' . $q . '%';
+            $bindings[':buscaNome'] = $valorBusca;
+            $bindings[':buscaDescricao'] = $valorBusca;
+            $bindings[':buscaSku'] = $valorBusca;
         }
 
         $countSql = 'SELECT COUNT(*) FROM produto p';
@@ -246,3 +249,4 @@ final class Produto
         ];
     }
 }
+

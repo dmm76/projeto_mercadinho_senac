@@ -66,7 +66,7 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? $baseUrl;
 <form class="row gy-2 gx-2 align-items-end mb-3" method="get" action="<?= $baseUrl ?>">
   <div class="col-12 col-md-5 col-lg-4">
     <label class="form-label mb-1">Buscar produtos</label>
-    <input type="text" name="q" value="<?= $h($qAtual) ?>" class="form-control" placeholder="Digite o nome, SKU ou descricao">
+    <input type="text" name="q" class="form-control" placeholder="Digite o nome, SKU ou descricao">
   </div>
   <div class="col-12 col-sm-6 col-md-3 col-lg-3">
     <label class="form-label mb-1">Ordenar por</label>

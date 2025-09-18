@@ -7,6 +7,8 @@ namespace App\Controllers\Site;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Url;
+use App\DAO\Database;
+use App\DAO\FavoritoDAO;
 use App\Models\Produto;
 
 final class ProdutoController extends Controller
@@ -53,9 +55,19 @@ final class ProdutoController extends Controller
             exit;
         }
 
+        $clienteId = Auth::clienteId();
+        $isFavorito = false;
+        $produtoId = isset($produto['id']) ? (int) $produto['id'] : 0;
+        if ($clienteId !== null && $produtoId > 0) {
+            $dao = new FavoritoDAO(Database::getConnection());
+            $isFavorito = $dao->exists($clienteId, $produtoId);
+        }
+
         $this->render('site/produtos/ver', [
-            'title'   => $produto['nome'] ?? 'Produto',
-            'produto' => $produto,
+            'title'      => $produto['nome'] ?? 'Produto',
+            'produto'    => $produto,
+            'clienteId'  => $clienteId,
+            'isFavorito' => $isFavorito,
         ]);
     }
 }

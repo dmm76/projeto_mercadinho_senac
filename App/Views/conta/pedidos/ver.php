@@ -10,9 +10,33 @@ $itens  = $itens ?? [];
 
 function status_badge(string $s): string
 {
-    $map = ['pago' => 'success', 'enviado' => 'primary', 'pendente' => 'warning', 'cancelado' => 'secondary'];
-    $variant = $map[strtolower($s)] ?? 'light';
-    return "<span class=\"badge bg-{$variant} text-uppercase\">" . htmlspecialchars($s) . "</span>";
+    $key = strtolower(trim($s));
+    $map = [
+        'pendente' => 'bg-warning text-dark',
+        'aguardando_pagamento' => 'bg-warning text-dark',
+        'aguardando' => 'bg-warning text-dark',
+        'pago' => 'bg-success text-white',
+        'enviado' => 'bg-primary text-white',
+        'em_transporte' => 'bg-info text-dark',
+        'transporte' => 'bg-info text-dark',
+        'em_preparo' => 'bg-info text-dark',
+        'preparando' => 'bg-info text-dark',
+        'em_andamento' => 'bg-info text-dark',
+        'pronto' => 'bg-secondary text-white',
+        'entregue' => 'bg-success text-white',
+        'finalizado' => 'bg-success text-white',
+        'cancelado' => 'bg-danger text-white',
+        'novo' => 'bg-secondary text-white',
+    ];
+    $classes = $map[$key] ?? 'bg-secondary text-white';
+    $label = $s !== '' ? $s : 'pendente';
+    $label = str_replace(['_', '-'], ' ', $label);
+    if (function_exists('mb_convert_case')) {
+        $label = mb_convert_case($label, MB_CASE_TITLE, 'UTF-8');
+    } else {
+        $label = ucwords(strtolower($label));
+    }
+    return '<span class="badge rounded-pill ' . htmlspecialchars($classes, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
 }
 ?>
 <!doctype html>
@@ -26,10 +50,10 @@ function status_badge(string $s): string
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
     <style>
-        .sidebar-sticky {
-            position: sticky;
-            top: 1rem
-        }
+    .sidebar-sticky {
+        position: sticky;
+        top: 1rem
+    }
     </style>
 </head>
 
@@ -91,34 +115,34 @@ function status_badge(string $s): string
                             <div class="card-header bg-white"><strong>Itens</strong></div>
                             <div class="card-body p-0">
                                 <?php if (!empty($itens)): ?>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover align-middle mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Produto</th>
-                                                    <th class="text-end">Qtd</th>
-                                                    <th class="text-end">PreÃ§o</th>
-                                                    <th class="text-end">Subtotal</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($itens as $i): ?>
-                                                    <tr>
-                                                        <td><?= (int)$i['produto_id'] ?></td>
-                                                        <td><?= htmlspecialchars($i['nome']) ?></td>
-                                                        <td class="text-end"><?= (int)$i['quantidade'] ?></td>
-                                                        <td class="text-end">R$
-                                                            <?= number_format((float)$i['preco'], 2, ',', '.') ?></td>
-                                                        <td class="text-end">R$
-                                                            <?= number_format((float)$i['subtotal'], 2, ',', '.') ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Produto</th>
+                                                <th class="text-end">Qtd</th>
+                                                <th class="text-end">Preço</th>
+                                                <th class="text-end">Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($itens as $i): ?>
+                                            <tr>
+                                                <td><?= (int)$i['produto_id'] ?></td>
+                                                <td><?= htmlspecialchars($i['nome']) ?></td>
+                                                <td class="text-end"><?= (int)$i['quantidade'] ?></td>
+                                                <td class="text-end">R$
+                                                    <?= number_format((float)$i['preco'], 2, ',', '.') ?></td>
+                                                <td class="text-end">R$
+                                                    <?= number_format((float)$i['subtotal'], 2, ',', '.') ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <?php else: ?>
-                                    <div class="p-3">Sem itens para este pedido.</div>
+                                <div class="p-3">Sem itens para este pedido.</div>
                                 <?php endif; ?>
                             </div>
                         </div>
