@@ -8,7 +8,7 @@ require __DIR__ . '/../vendor/autoload.php';
 /** 1) .env */
 $root = realpath(__DIR__ . '/..');
 $dotenv = Dotenv\Dotenv::createImmutable($root);
-$dotenv->load();
+$dotenv->safeLoad();
 
 /** 2) Erros */
 if (($_ENV['APP_ENV'] ?? 'prod') === 'local') {
@@ -16,7 +16,7 @@ if (($_ENV['APP_ENV'] ?? 'prod') === 'local') {
     error_reporting(E_ALL);
 }
 
-/** 3) Sessão */
+/** 3) Sessao */
 session_start();
 
 /** 4) Router */
@@ -44,7 +44,7 @@ elseif ($scriptDir && $scriptDir !== '' && $scriptDir !== '/' && strpos($path, $
     $path = substr($path, strlen($scriptDir));
 }
 
-// Se sobrar um /index.php no início, remove
+// Se sobrar um /index.php no inicio, remove
 if (strpos($path, '/index.php') === 0) {
     $path = substr($path, strlen('/index.php'));
 }
