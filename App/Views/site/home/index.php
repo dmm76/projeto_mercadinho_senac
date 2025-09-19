@@ -103,7 +103,7 @@
 
 
 
-                        <div class="carousel-item active">
+                        <div class="carousel-item">
 
                             <img src="<?= $ASSETS ?>/banner.jpg" class="d-block w-100 carousel-img" alt="Promocoes">
 
