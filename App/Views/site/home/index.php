@@ -71,7 +71,7 @@
 
                         <div class="carousel-item active">
 
-                            <img src="<?= $ASSETS ?>/banner.jpg" class="d-block w-100 carousel-img" alt="Promocoes">
+                            <img src="<?= $ASSETS ?>/banner.webp" class="d-block w-100 carousel-img" alt="Promocoes">
 
                         </div>
 
