@@ -83,8 +83,23 @@
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/compras01.jpg" class="d-block w-100 carousel-img"
-                                alt="Clientes satisfeitos">
+                            <img src="<?= $ASSETS ?>/higiene.jpg" class="d-block w-100 carousel-img"
+                                alt="Produtos de Higiene">
+
+                        </div>
+
+                        <div class="carousel-item">
+
+                            <img src="<?= $ASSETS ?>/paes.jpg" class="d-block w-100 carousel-img"
+                                alt="Pães fresquinhos">
+
+                        </div>
+
+
+
+                        <div class="carousel-item active">
+
+                            <img src="<?= $ASSETS ?>/banner.jpg" class="d-block w-100 carousel-img" alt="Promocoes">
 
                         </div>
 
