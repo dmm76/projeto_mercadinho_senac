@@ -26,10 +26,10 @@
 
 
     <style>
-    .carousel-img {
-        object-fit: cover;
-        max-height: 380px;
-    }
+        .carousel-img {
+            object-fit: cover;
+            max-height: 380px;
+        }
     </style>
 
 </head>
@@ -83,28 +83,28 @@
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/banca.webp" class="d-block w-100 carousel-img"
+                            <img src="<?= $ASSETS ?>/banca2.webp" class="d-block w-100 carousel-img"
                                 alt="Frutas frescas">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/higiene.webp" class="d-block w-100 carousel-img"
+                            <img src="<?= $ASSETS ?>/higiene2.webp" class="d-block w-100 carousel-img"
                                 alt="Produtos de Higiene">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/paes.webp" class="d-block w-100 carousel-img"
+                            <img src="<?= $ASSETS ?>/paes2.webp" class="d-block w-100 carousel-img"
                                 alt="Pães fresquinhos">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/compras01.webp" class="d-block w-100 carousel-img" alt="Promocoes">
+                            <img src="<?= $ASSETS ?>/compras.webp" class="d-block w-100 carousel-img" alt="Promocoes">
 
                         </div>
 
@@ -134,11 +134,11 @@
 
                 <?php
 
-        $catalogBasePath = $catalogBasePath ?? '/';
+                $catalogBasePath = $catalogBasePath ?? '/';
 
-        require dirname(__DIR__) . '/partials/catalogo-grid.php';
+                require dirname(__DIR__) . '/partials/catalogo-grid.php';
 
-        ?>
+                ?>
 
 
 
@@ -157,32 +157,32 @@
     <script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
 
     <script>
-    (function() {
+        (function() {
 
-        var el = document.getElementById('carouselHero');
+            var el = document.getElementById('carouselHero');
 
-        if (!el) return;
+            if (!el) return;
 
-        function init() {
+            function init() {
 
-            if (window.bootstrap && bootstrap.Carousel) {
+                if (window.bootstrap && bootstrap.Carousel) {
 
-                new bootstrap.Carousel(el, {
-                    interval: 5000,
-                    ride: true
-                });
+                    new bootstrap.Carousel(el, {
+                        interval: 5000,
+                        ride: true
+                    });
 
-            } else {
+                } else {
 
-                setTimeout(init, 50);
+                    setTimeout(init, 50);
+
+                }
 
             }
 
-        }
+            init();
 
-        init();
-
-    })();
+        })();
     </script>
 
 </body>
