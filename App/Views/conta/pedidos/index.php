@@ -46,10 +46,10 @@ $statusBadge = static function (string $status) use ($h): string {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
     <style>
-        .sidebar-sticky {
-            position: sticky;
-            top: 1rem;
-        }
+    .sidebar-sticky {
+        position: sticky;
+        top: 1rem;
+    }
     </style>
 </head>
 
@@ -72,51 +72,51 @@ $statusBadge = static function (string $status) use ($h): string {
                         <div class="card shadow-sm">
                             <div class="card-body p-0">
                                 <?php if (!empty($pedidos)): ?>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Código</th>
-                                                    <th>Data</th>
-                                                    <th>Status</th>
-                                                    <th class="text-end">Total</th>
-                                                    <th class="text-end">Ações</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($pedidos as $pedido): ?>
-                                                    <tr>
-                                                        <td><?= (int)($pedido['id'] ?? 0) ?></td>
-                                                        <td><code><?= $h($pedido['codigo'] ?? '') ?></code></td>
-                                                        <td><?= $h(date('d/m/Y H:i', strtotime($pedido['criado_em']))) ?></td>
-                                                        <td><?= $statusBadge((string)($pedido['status'] ?? '')) ?></td>
-                                                        <td class="text-end">R$
-                                                            <?= number_format((float)($pedido['total'] ?? 0), 2, ',', '.') ?>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <a href="<?= Url::to('/conta/pedidos/ver') . '?id=' . (int)($pedido['id'] ?? 0) ?>"
-                                                                class="btn btn-sm btn-outline-primary">Ver</a>
-                                                            <a href="<?= Url::to('/conta/pedidos/nota') . '?id=' . (int)($pedido['id'] ?? 0) ?>"
-                                                                class="btn btn-sm btn-outline-secondary" target="_blank"
-                                                                rel="noopener">Nota</a>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Código</th>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Total</th>
+                                                <th class="text-end">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($pedidos as $pedido): ?>
+                                            <tr>
+                                                <td><?= (int)($pedido['id'] ?? 0) ?></td>
+                                                <td><code><?= $h($pedido['codigo'] ?? '') ?></code></td>
+                                                <td><?= $h(date('d/m/Y H:i', strtotime($pedido['criado_em']))) ?></td>
+                                                <td><?= $statusBadge((string)($pedido['status'] ?? '')) ?></td>
+                                                <td class="text-end">R$
+                                                    <?= number_format((float)($pedido['total'] ?? 0), 2, ',', '.') ?>
+                                                </td>
+                                                <td class="text-end">
+                                                    <a href="<?= Url::to('/conta/pedidos/ver') . '?id=' . (int)($pedido['id'] ?? 0) ?>"
+                                                        class="btn btn-sm btn-outline-primary">Ver</a>
+                                                    <a href="<?= Url::to('/conta/pedidos/nota') . '?id=' . (int)($pedido['id'] ?? 0) ?>"
+                                                        class="btn btn-sm btn-outline-secondary" target="_blank"
+                                                        rel="noopener">Nota</a>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                                    <?php if (!empty($paginacao)): ?>
-                                        <div class="p-3 border-top d-flex justify-content-between align-items-center">
-                                            <?= $paginacao ?>
-                                        </div>
-                                    <?php endif; ?>
+                                <?php if (!empty($paginacao)): ?>
+                                <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                                    <?= $paginacao ?>
+                                </div>
+                                <?php endif; ?>
                                 <?php else: ?>
-                                    <div class="p-4">
-                                        <p class="mb-2">Voc� ainda n�o possui pedidos.</p>
-                                        <a href="<?= Url::to('/') ?>" class="btn btn-primary btn-sm">Ver produtos</a>
-                                    </div>
+                                <div class="p-4">
+                                    <p class="mb-2">Você ainda não possui pedidos.</p>
+                                    <a href="<?= Url::to('/') ?>" class="btn btn-primary btn-sm">Ver produtos</a>
+                                </div>
                                 <?php endif; ?>
                             </div>
                         </div>
