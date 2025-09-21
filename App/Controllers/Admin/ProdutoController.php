@@ -21,9 +21,14 @@ final class ProdutoController extends BaseAdminController
 {
     public function index(): void
     {
+        $q = trim((string)($_GET['q'] ?? ''));
         $dao = new ProdutoDAO(Database::getConnection());
-        $produtos = $dao->listWithJoins();
-        $this->render('admin/produtos/index', ['title' => 'Produtos', 'produtos' => $produtos]);
+        $produtos = $dao->listWithJoins($q);
+        $this->render('admin/produtos/index', [
+            'title' => 'Produtos',
+            'produtos' => $produtos,
+            'busca' => $q,
+        ]);
     }
 
     public function create(): void

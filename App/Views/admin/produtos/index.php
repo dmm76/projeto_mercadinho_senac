@@ -27,9 +27,18 @@
 
         <!-- Conteúdo -->
         <div class="col-12 col-lg-9">
-          <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
             <h1 class="h4 mb-0">Produtos</h1>
-            <a class="btn btn-danger" href="<?= \App\Core\Url::to('/admin/produtos/criar') ?>">
+            <form class="ms-0" method="get" action="<?= \App\Core\Url::to('/admin/produtos') ?>" role="search">
+              <div class="input-group input-group-sm">
+                <input type="search" class="form-control" name="q" placeholder="Buscar por nome ou SKU" value="<?= htmlspecialchars($busca ?? '') ?>">
+                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                <?php if (($busca ?? '') !== ''): ?>
+                  <a class="btn btn-outline-secondary" href="<?= \App\Core\Url::to('/admin/produtos') ?>">Limpar</a>
+                <?php endif; ?>
+              </div>
+            </form>
+            <a class="btn btn-danger ms-auto" href="<?= \App\Core\Url::to('/admin/produtos/criar') ?>">
               <i class="bi bi-plus-lg me-1"></i> Novo Produto
             </a>
           </div>

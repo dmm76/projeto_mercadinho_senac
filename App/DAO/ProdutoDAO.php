@@ -12,7 +12,7 @@ final class ProdutoDAO
     public function __construct(private PDO $pdo) {}
 
     /** @return array<int, array<string,mixed>> */
-    public function listWithJoins(): array
+    public function listWithJoins(string $term = ''): array
     {
         $sql = "SELECT p.*,
                    c.nome AS categoria, m.nome AS marca, u.sigla AS unidade,
@@ -22,9 +22,18 @@ final class ProdutoDAO
                 LEFT JOIN categoria c ON c.id=p.categoria_id
                 LEFT JOIN marca m ON m.id=p.marca_id
                 JOIN unidade u ON u.id=p.unidade_id
+                %s
                 ORDER BY p.nome";
-        $stmt = $this->pdo->query($sql);
-        if ($stmt === false) {
+        $params = [];
+        $where = '';
+        if ($term !== '') {
+            $where = "WHERE (p.nome LIKE :q_nome OR p.sku LIKE :q_sku)";
+            $like = '%' . $term . '%';
+            $params[':q_nome'] = $like;
+            $params[':q_sku'] = $like;
+        }
+        $stmt = $this->pdo->prepare(sprintf($sql, $where));
+        if (!$stmt->execute($params)) {
             return [];
         }
         /** @var array<int, array<string,mixed>> $rows */
