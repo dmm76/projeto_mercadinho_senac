@@ -23,8 +23,7 @@ composer install
 # Ajuste variáveis do .env conforme o seu ambiente
 # Importe o dump principal do banco
 mysql -u root -p mercadinho < banco/mercadinho.sql
-# Crie a tabela de mensagens (se ainda não existir)
-mysql -u root -p mercadinho < banco/contato_mensagens.sql
+
 ```
 
 Configure o virtual host ou acesse via `http://localhost/projeto_mercadinho_senac/public`.
