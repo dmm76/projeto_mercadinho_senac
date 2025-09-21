@@ -22,11 +22,18 @@ final class ContaController extends BaseContaController
         $totalPedidos = 0;
         $qtdEnderecos = 0;
 
-        // Contagem do carrinho baseada na estrutura atual
+        // Contagem do carrinho considera cada item unico com quantidade positiva
         $cart = $_SESSION['carrinho'] ?? [];
-        $cartCount = is_array($cart)
-            ? array_reduce($cart, fn($sum, $it) => $sum + (float)($it['quantidade'] ?? 0), 0)
-            : 0;
+        $cartCount = 0;
+        if (is_array($cart)) {
+            foreach ($cart as $item) {
+                $qty = $item['quantidade'] ?? null;
+                if (is_numeric($qty) && (float) $qty <= 0) {
+                    continue;
+                }
+                $cartCount++;
+            }
+        }
 
         $ultimosPedidos = [];
 

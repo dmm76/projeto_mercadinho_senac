@@ -15,8 +15,11 @@ if (!isset($cartCount) || !is_numeric($cartCount)) {
   $cartCount = 0;
   if (is_array($cart)) {
     foreach ($cart as $item) {
-      $qty = $item['quantidade'] ?? 1;
-      $cartCount += is_numeric($qty) ? (int) $qty : 1;
+      $qty = $item['quantidade'] ?? null;
+      if (is_numeric($qty) && (float) $qty <= 0) {
+        continue;
+      }
+      $cartCount++;
     }
   }
 }

@@ -10,12 +10,11 @@ $cartCount = 0;
 $cart = $_SESSION['carrinho'] ?? [];
 if (is_array($cart)) {
     foreach ($cart as $item) {
-        $qty = $item['quantidade'] ?? 1;
-        if (is_numeric($qty)) {
-            $cartCount += (int) $qty;
-        } else {
-            $cartCount++;
+        $qty = $item['quantidade'] ?? null;
+        if (is_numeric($qty) && (float) $qty <= 0) {
+            continue;
         }
+        $cartCount++;
     }
 }
 $cartCount = max(0, (int) $cartCount);
