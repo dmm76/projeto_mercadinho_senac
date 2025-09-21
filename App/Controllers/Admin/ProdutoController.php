@@ -41,6 +41,7 @@ final class ProdutoController extends BaseAdminController
             'marcas' => (new MarcaDAO($pdo))->all(),
             'unidades' => (new UnidadeDAO($pdo))->all(),
             'estoque' => null,
+            'precoAtual' => null,
         ]);
     }
 
@@ -117,6 +118,7 @@ final class ProdutoController extends BaseAdminController
         }
 
         $estoque = (new EstoqueDAO($pdo))->getByProduto($id);
+        $precoAtual = (new PrecoDAO($pdo))->getLatest($id);
 
         $this->render('admin/produtos/form', [
             'title' => 'Editar Produto',
@@ -125,6 +127,7 @@ final class ProdutoController extends BaseAdminController
             'marcas' => (new MarcaDAO($pdo))->all(),
             'unidades' => (new UnidadeDAO($pdo))->all(),
             'estoque' => $estoque,
+            'precoAtual' => $precoAtual,
         ]);
     }
 

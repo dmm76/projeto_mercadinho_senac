@@ -12,9 +12,24 @@ final class PrecoDAO
         $st = $this->pdo->prepare('INSERT INTO preco (produto_id, preco_venda, preco_promocional, inicio_promo, fim_promo, criado_em)
                                    VALUES (:p,:v,:pr,:i,:f,NOW())');
         $st->execute([
-            ':p'=>$produtoId, ':v'=>$precoVenda,
-            ':pr'=>$promocional, ':i'=>$ini, ':f'=>$fim
+            ':p' => $produtoId,
+            ':v' => $precoVenda,
+            ':pr' => $promocional,
+            ':i' => $ini,
+            ':f' => $fim
         ]);
         return (int)$this->pdo->lastInsertId();
+    }
+
+    public function getLatest(int $produtoId): ?array
+    {
+        $st = $this->pdo->prepare('SELECT preco_venda, preco_promocional, inicio_promo, fim_promo
+                                   FROM preco
+                                   WHERE produto_id = :id
+                                   ORDER BY id DESC
+                                   LIMIT 1');
+        $st->execute([':id' => $produtoId]);
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        return $row === false ? null : $row;
     }
 }

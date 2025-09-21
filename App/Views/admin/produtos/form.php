@@ -3,6 +3,41 @@ $categorias = $categorias ?? [];
 $marcas     = $marcas     ?? [];
 $unidades   = $unidades   ?? [];
 $estoque    = $estoque    ?? null;
+$precoAtual = $precoAtual ?? null;
+?>
+<?php
+$precoVendaPlaceholder = '';
+$precoVendaHint = '';
+$precoPromoPlaceholder = '';
+$precoPromoHint = '';
+$inicioPromoValue = '';
+$fimPromoValue = '';
+$inicioPromoHint = '';
+$fimPromoHint = '';
+if (is_array($precoAtual)) {
+    if (isset($precoAtual['preco_venda'])) {
+        $precoVendaPlaceholder = number_format((float)$precoAtual['preco_venda'], 2, '.', '');
+        $precoVendaHint = number_format((float)$precoAtual['preco_venda'], 2, ',', '.');
+    }
+    if (isset($precoAtual['preco_promocional']) && $precoAtual['preco_promocional'] !== null) {
+        $precoPromoPlaceholder = number_format((float)$precoAtual['preco_promocional'], 2, '.', '');
+        $precoPromoHint = number_format((float)$precoAtual['preco_promocional'], 2, ',', '.');
+    }
+    if (!empty($precoAtual['inicio_promo'])) {
+        $dt = date_create($precoAtual['inicio_promo']);
+        if ($dt) {
+            $inicioPromoValue = $dt->format('Y-m-d\TH:i');
+            $inicioPromoHint = $dt->format('d/m/Y H:i');
+        }
+    }
+    if (!empty($precoAtual['fim_promo'])) {
+        $dt = date_create($precoAtual['fim_promo']);
+        if ($dt) {
+            $fimPromoValue = $dt->format('Y-m-d\TH:i');
+            $fimPromoHint = $dt->format('d/m/Y H:i');
+        }
+    }
+}
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -112,20 +147,35 @@ $estoque    = $estoque    ?? null;
                 <div class="col-12"><hr class="my-2"></div>
                 <div class="col-md-3">
                   <label class="form-label" for="produto-preco-venda">Preco venda* (R$)</label>
-                  <input id="produto-preco-venda" class="form-control" name="preco_venda" type="number" step="0.01" min="0" <?= $isEdit ? '' : 'required' ?>>
-                  <?php if ($isEdit): ?><div class="form-text">Preencha para registrar novo preco.</div><?php endif; ?>
+                  <input id="produto-preco-venda" class="form-control" name="preco_venda" type="number" step="0.01" min="0" value="" placeholder="<?= htmlspecialchars($precoVendaPlaceholder) ?>" <?= $isEdit ? '' : 'required' ?>>
+                  <?php if ($isEdit): ?>
+                    <div class="form-text">
+                      Preencha para registrar novo preco.<?php if ($precoVendaHint !== ''): ?> Atual: R$ <?= $precoVendaHint ?><?php endif; ?>
+                    </div>
+                  <?php elseif ($precoVendaHint !== ''): ?>
+                    <div class="form-text">Atual: R$ <?= $precoVendaHint ?></div>
+                  <?php endif; ?>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label" for="produto-preco-promocional">Preco promocional (R$)</label>
-                  <input id="produto-preco-promocional" class="form-control" name="preco_promocional" type="number" step="0.01" min="0">
+                  <input id="produto-preco-promocional" class="form-control" name="preco_promocional" type="number" step="0.01" min="0" value="" placeholder="<?= htmlspecialchars($precoPromoPlaceholder) ?>">
+                  <?php if ($precoPromoHint !== ''): ?>
+                    <div class="form-text">Promo atual: R$ <?= $precoPromoHint ?></div>
+                  <?php endif; ?>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label" for="produto-inicio-promo">Inicio promo</label>
-                  <input id="produto-inicio-promo" class="form-control" name="inicio_promo" type="datetime-local">
+                  <input id="produto-inicio-promo" class="form-control" name="inicio_promo" type="datetime-local" value="" placeholder="<?= $inicioPromoValue ?>">
+                  <?php if ($inicioPromoHint !== ''): ?>
+                    <div class="form-text">Inicio atual: <?= htmlspecialchars($inicioPromoHint) ?></div>
+                  <?php endif; ?>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label" for="produto-fim-promo">Fim promo</label>
-                  <input id="produto-fim-promo" class="form-control" name="fim_promo" type="datetime-local">
+                  <input id="produto-fim-promo" class="form-control" name="fim_promo" type="datetime-local" value="" placeholder="<?= $fimPromoValue ?>">
+                  <?php if ($fimPromoHint !== ''): ?>
+                    <div class="form-text">Fim atual: <?= htmlspecialchars($fimPromoHint) ?></div>
+                  <?php endif; ?>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label" for="produto-estoque-qtd">Estoque inicial (qtd)</label>
