@@ -44,6 +44,19 @@ $enderecos = $enderecos ?? [];
               </a>
             </div>
 
+            <?php if ($msg = \App\Core\Flash::get('success')): ?>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($msg) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+              </div>
+            <?php endif; ?>
+            <?php if ($msg = \App\Core\Flash::get('error')): ?>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($msg) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+              </div>
+            <?php endif; ?>
+
             <?php if (!empty($enderecos)): ?>
               <div class="row g-3">
                 <?php foreach ($enderecos as $e): ?>

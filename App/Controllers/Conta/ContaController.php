@@ -571,10 +571,32 @@ final class ContaController extends BaseContaController
 
         if (!$this->validateCsrf($_POST)) return;
 
+        $check = $pdo->prepare('SELECT id FROM endereco WHERE id = ? AND cliente_id = ? LIMIT 1');
+        $check->execute([$id, $clienteId]);
+        if (!$check->fetch(PDO::FETCH_ASSOC)) {
+            Flash::set('error', 'Endereco nao encontrado.');
+            $this->redirect('/conta/enderecos');
+        }
+
+        $countStmt = $pdo->prepare('SELECT COUNT(*) FROM endereco WHERE cliente_id = ?');
+        $countStmt->execute([$clienteId]);
+        $total = (int)$countStmt->fetchColumn();
+        if ($total <= 1) {
+            Flash::set('error', 'Mantenha pelo menos um endereço cadastrado.');
+            $this->redirect('/conta/enderecos');
+        }
+
+        $pedidoStmt = $pdo->prepare("SELECT COUNT(*) FROM pedido WHERE cliente_id = ? AND endereco_id = ? AND entrega = 'entrega' AND status NOT IN ('finalizado','cancelado')");
+        $pedidoStmt->execute([$clienteId, $id]);
+        if ((int)$pedidoStmt->fetchColumn() > 0) {
+            Flash::set('error', 'Este endereco esta vinculado a um pedido em andamento.');
+            $this->redirect('/conta/enderecos');
+        }
+
         $stmt = $pdo->prepare('DELETE FROM endereco WHERE id = ? AND cliente_id = ?');
         $ok = $stmt->execute([$id, $clienteId]);
 
-        Flash::set($ok ? 'success' : 'error', $ok ? 'Endereço excluí­do.' : 'Não foi possí­vel excluir.');
+        Flash::set($ok ? 'success' : 'error', $ok ? 'Endereco excluido.' : 'Nao foi possivel excluir.');
         $this->redirect('/conta/enderecos');
     }
 
