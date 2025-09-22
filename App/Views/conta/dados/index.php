@@ -1,4 +1,5 @@
 <?php
+
 use App\Core\Url;
 use App\Core\Auth;
 use App\Core\Flash;
@@ -15,6 +16,9 @@ $email       = htmlspecialchars($user['email'] ?? '');
 $tel         = isset($cliente['telefone']) ? htmlspecialchars((string)$cliente['telefone']) : '';
 $perfilAction = $perfilAction ?? Url::to('/conta/dados/perfil');
 $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
+$cpf         = isset($cliente['cpf']) ? htmlspecialchars((string)$cliente['cpf']) : '';
+$nascimento  = isset($cliente['nascimento']) ? htmlspecialchars((string)$cliente['nascimento']) : '';
+
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -27,33 +31,33 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="<?= Url::to('/assets/site/css/style.css') ?>" />
     <style>
-    .sidebar-sticky {
-        position: sticky;
-        top: 1rem
-    }
+        .sidebar-sticky {
+            position: sticky;
+            top: 1rem
+        }
     </style>
 </head>
 
 <body>
     <div class="d-flex flex-column wrapper">
 
-         <?php require __DIR__ . '/../../partials/navbar.php'; ?>
+        <?php require __DIR__ . '/../../partials/navbar.php'; ?>
 
         <main class="flex-fill">
             <div class="container py-3">
                 <div class="row g-3">
                     <div class="col-12 col-lg-3">
-                         <?php require __DIR__ . '/../../partials/conta-sidebar.php'; ?>
+                        <?php require __DIR__ . '/../../partials/conta-sidebar.php'; ?>
                     </div>
 
                     <div class="col-12 col-lg-9">
                         <h1 class="h4 mb-3">Meus Dados</h1>
 
                         <?php if ($m = Flash::get('success')): ?>
-                        <div class="alert alert-success"><?= htmlspecialchars($m) ?></div>
+                            <div class="alert alert-success"><?= htmlspecialchars($m) ?></div>
                         <?php endif; ?>
                         <?php if ($m = Flash::get('error')): ?>
-                        <div class="alert alert-danger"><?= htmlspecialchars($m) ?></div>
+                            <div class="alert alert-danger"><?= htmlspecialchars($m) ?></div>
                         <?php endif; ?>
 
                         <div class="row g-3">
@@ -80,6 +84,19 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
                                                     value="<?= $tel ?>" placeholder="(11) 91234-5678" maxlength="20"
                                                     pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$">
                                             </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="conta-cpf">CPF (opcional)</label>
+                                                <input id="conta-cpf" type="text" name="cpf" class="form-control"
+                                                    value="<?= $cpf ?>" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
+                                                <div class="form-text">Preencha se quiser nota fiscal no CPF ou para agilizar estornos.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="conta-nascimento">Data de nascimento (opcional)</label>
+                                                <input id="conta-nascimento" type="date" name="nascimento" class="form-control"
+                                                    value="<?= $nascimento ?>">
+                                            </div>
+
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-danger" type="submit">Salvar alterações</button>
                                                 <a class="btn btn-outline-secondary"
@@ -125,7 +142,7 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
             </div>
         </main>
 
-         <?php require __DIR__ . '/../../partials/footer.php'; ?>
+        <?php require __DIR__ . '/../../partials/footer.php'; ?>
 
     </div>
     <script src="<?= \App\Core\Url::to('/assets/js/bootstrap.bundle.min.js') ?>"></script>
@@ -133,4 +150,3 @@ $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
 </body>
 
 </html>
-
