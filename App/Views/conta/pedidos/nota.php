@@ -29,6 +29,13 @@ $pagamento = $pedido['pagamento'] ?? '-';
 $clienteNome = htmlspecialchars((string)($cliente['nome'] ?? 'Cliente'), ENT_QUOTES, 'UTF-8');
 $clienteEmail = (string)($cliente['email'] ?? '');
 $clienteTelefone = (string)($cliente['telefone'] ?? '');
+$clienteCpf = isset($cliente['cpf']) ? (string)$cliente['cpf'] : '';
+$clienteCpf = preg_replace('/\D+/', '', $clienteCpf); // garante só dígitos
+$clienteCpfFmt = '';
+if ($clienteCpf !== '' && preg_match('/^\d{11}$/', $clienteCpf)) {
+    $clienteCpfFmt = substr($clienteCpf, 0, 3) . '.' . substr($clienteCpf, 3, 3) . '.' . substr($clienteCpf, 6, 3) . '-' . substr($clienteCpf, 9, 2);
+}
+
 
 $empresaNome = htmlspecialchars((string)($empresa['nome'] ?? 'Mercadinho Borba Gato'), ENT_QUOTES, 'UTF-8');
 $empresaEndereco = htmlspecialchars((string)($empresa['endereco'] ?? 'R. das Tipuanas, 250 - Maringa/PR'), ENT_QUOTES, 'UTF-8');
@@ -46,59 +53,59 @@ $empresaEmail = (string)($empresa['email'] ?? '');
     <link rel="stylesheet" href="<?= \App\Core\Url::to('/assets/css/bootstrap.min.css') ?>" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
-    body {
-        background: #f5f5f5;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-
-    .invoice {
-        max-width: 920px;
-        margin: 32px auto;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 15px 45px rgba(15, 23, 42, 0.10);
-        padding: 32px;
-    }
-
-    .invoice h1 {
-        font-size: 1.75rem;
-    }
-
-    .invoice small {
-        color: #6c757d;
-    }
-
-    .badge-status {
-        font-size: 0.875rem;
-        padding: 0.45rem 0.85rem;
-    }
-
-    .table-items thead th {
-        background: #f1f3f5;
-    }
-
-    .summary-box {
-        border: 1px solid #e9ecef;
-        border-radius: 10px;
-        padding: 18px 20px;
-        background: #fafafa;
-    }
-
-    @media print {
         body {
-            background: #ffffff;
+            background: #f5f5f5;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         .invoice {
-            box-shadow: none;
-            border-radius: 0;
-            margin: 0;
+            max-width: 920px;
+            margin: 32px auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 15px 45px rgba(15, 23, 42, 0.10);
+            padding: 32px;
         }
 
-        .no-print {
-            display: none !important;
+        .invoice h1 {
+            font-size: 1.75rem;
         }
-    }
+
+        .invoice small {
+            color: #6c757d;
+        }
+
+        .badge-status {
+            font-size: 0.875rem;
+            padding: 0.45rem 0.85rem;
+        }
+
+        .table-items thead th {
+            background: #f1f3f5;
+        }
+
+        .summary-box {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 18px 20px;
+            background: #fafafa;
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .invoice {
+                box-shadow: none;
+                border-radius: 0;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -109,10 +116,10 @@ $empresaEmail = (string)($empresa['email'] ?? '');
                 <h1 class="mb-1"><?= $empresaNome ?></h1>
                 <div class="small mb-1"><?= $empresaEndereco ?></div>
                 <?php if ($empresaTelefone !== ''): ?>
-                <div class="small">Telefone: <?= htmlspecialchars($empresaTelefone, ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="small">Telefone: <?= htmlspecialchars($empresaTelefone, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
                 <?php if ($empresaEmail !== ''): ?>
-                <div class="small">Email: <?= htmlspecialchars($empresaEmail, ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="small">Email: <?= htmlspecialchars($empresaEmail, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
             </div>
             <div class="text-end">
@@ -122,7 +129,7 @@ $empresaEmail = (string)($empresa['email'] ?? '');
                 </span>
                 <div class="fw-semibold mt-2">Pedido <?= $pedidoNumero ?></div>
                 <?php if ($dataPedido !== ''): ?>
-                <div class="small">Emitido em <?= htmlspecialchars($dataPedido, ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="small">Emitido em <?= htmlspecialchars($dataPedido, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
             </div>
         </div>
@@ -140,21 +147,24 @@ $empresaEmail = (string)($empresa['email'] ?? '');
             <div class="col-md-6">
                 <h2 class="h6 text-uppercase text-muted">Cliente</h2>
                 <div class="fw-semibold"><?= $clienteNome ?></div>
+                <?php if ($clienteCpfFmt !== ''): ?>
+                    <div class="small">CPF: <?= htmlspecialchars($clienteCpfFmt, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
                 <?php if ($clienteEmail !== ''): ?>
-                <div class="small">Email: <?= htmlspecialchars($clienteEmail, ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="small">Email: <?= htmlspecialchars($clienteEmail, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
                 <?php if ($clienteTelefone !== ''): ?>
-                <div class="small">Telefone: <?= htmlspecialchars($clienteTelefone, ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="small">Telefone: <?= htmlspecialchars($clienteTelefone, ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
             </div>
             <div class="col-md-6">
                 <h2 class="h6 text-uppercase text-muted">Entrega</h2>
                 <?php if (!empty($entregaLinhas)): ?>
-                <?php foreach ($entregaLinhas as $linha): ?>
-                <div class="small"><?= htmlspecialchars((string)$linha, ENT_QUOTES, 'UTF-8') ?></div>
-                <?php endforeach; ?>
+                    <?php foreach ($entregaLinhas as $linha): ?>
+                        <div class="small"><?= htmlspecialchars((string)$linha, ENT_QUOTES, 'UTF-8') ?></div>
+                    <?php endforeach; ?>
                 <?php else: ?>
-                <div class="small text-muted">Sem endereco de entrega registrado.</div>
+                    <div class="small text-muted">Sem endereco de entrega registrado.</div>
                 <?php endif; ?>
             </div>
         </div>
@@ -197,19 +207,19 @@ $empresaEmail = (string)($empresa['email'] ?? '');
                 </thead>
                 <tbody>
                     <?php if (!empty($itens)): ?>
-                    <?php foreach ($itens as $item): ?>
-                    <tr>
-                        <td><?= (int)($item['produto_id'] ?? 0) ?></td>
-                        <td><?= htmlspecialchars((string)($item['nome'] ?? 'Item'), ENT_QUOTES, 'UTF-8') ?></td>
-                        <td class="text-end"><?= $fmtQty((float)($item['quantidade'] ?? 0)) ?></td>
-                        <td class="text-end"><?= $formatMoney((float)($item['preco'] ?? 0)) ?></td>
-                        <td class="text-end"><?= $formatMoney((float)($item['subtotal'] ?? 0)) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
+                        <?php foreach ($itens as $item): ?>
+                            <tr>
+                                <td><?= (int)($item['produto_id'] ?? 0) ?></td>
+                                <td><?= htmlspecialchars((string)($item['nome'] ?? 'Item'), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="text-end"><?= $fmtQty((float)($item['quantidade'] ?? 0)) ?></td>
+                                <td class="text-end"><?= $formatMoney((float)($item['preco'] ?? 0)) ?></td>
+                                <td class="text-end"><?= $formatMoney((float)($item['subtotal'] ?? 0)) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php else: ?>
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Nenhum item neste pedido.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Nenhum item neste pedido.</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>

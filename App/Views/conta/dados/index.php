@@ -14,10 +14,14 @@ $user        = $user ?? Auth::user();
 $nome        = htmlspecialchars($user['nome'] ?? '');
 $email       = htmlspecialchars($user['email'] ?? '');
 $tel         = isset($cliente['telefone']) ? htmlspecialchars((string)$cliente['telefone']) : '';
+$cpf = isset($cliente['cpf']) ? (string)$cliente['cpf'] : '';
+if ($cpf && preg_match('/^\d{11}$/', $cpf)) {
+    $cpf = substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+}
+$cpf = htmlspecialchars($cpf);
+$nascimento  = isset($cliente['nascimento']) ? htmlspecialchars((string)$cliente['nascimento']) : '';
 $perfilAction = $perfilAction ?? Url::to('/conta/dados/perfil');
 $senhaAction  = $senhaAction  ?? Url::to('/conta/dados/senha');
-$cpf         = isset($cliente['cpf']) ? htmlspecialchars((string)$cliente['cpf']) : '';
-$nascimento  = isset($cliente['nascimento']) ? htmlspecialchars((string)$cliente['nascimento']) : '';
 
 ?>
 <!doctype html>

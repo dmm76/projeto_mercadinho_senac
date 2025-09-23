@@ -161,7 +161,8 @@ final class ContaController extends BaseContaController
                                         p.criado_em,
                                         u.nome AS cliente_nome,
                                         u.email AS cliente_email,
-                                        c.telefone AS cliente_telefone
+                                        c.telefone AS cliente_telefone,
+                                        c.cpf AS cliente_cpf  
                                    FROM pedido p
                               LEFT JOIN cliente c ON c.id = p.cliente_id
                               LEFT JOIN usuario u ON u.id = c.usuario_id
@@ -194,11 +195,12 @@ final class ContaController extends BaseContaController
             'nome' => $pedido['cliente_nome'] ?? ($user['nome'] ?? 'Cliente'),
             'email' => $pedido['cliente_email'] ?? ($user['email'] ?? ''),
             'telefone' => $pedido['cliente_telefone'] ?? null,
+            'cpf'      => $pedido['cliente_cpf'] ?? null,
         ];
 
         $entregaLinhas = $this->formatEnderecoEntrega($pedido['entrega'] ?? null);
 
-        unset($pedido['cliente_nome'], $pedido['cliente_email'], $pedido['cliente_telefone']);
+        unset($pedido['cliente_nome'], $pedido['cliente_email'], $pedido['cliente_telefone'], $pedido['cliente_cpf']);
 
         $empresa = [
             'nome' => 'Mercadinho Borba Gato',
@@ -379,7 +381,7 @@ final class ContaController extends BaseContaController
         return $id;
     }
 
-    /* ========= ENDEREÃ‡OS ========= */
+    /* ========= ENDEREÇOS ========= */
 
     public function enderecos(): void
     {
@@ -688,6 +690,50 @@ final class ContaController extends BaseContaController
         return true;
     }
 
+    // public function salvarPerfil(): void
+    // {
+    //     if (!$this->validateCsrf($_POST, '/conta/dados')) return;
+
+    //     $pdo = Database::getConnection();
+    //     $u = Auth::user();
+    //     $clienteId = Auth::clienteId();
+
+    //     $nome = trim((string)($_POST['nome'] ?? ''));
+    //     $tel  = trim((string)($_POST['telefone'] ?? ''));
+
+    //     $errs = [];
+    //     if ($nome === '') $errs[] = 'Informe seu nome.';
+    //     if ($tel !== '' && !preg_match('/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/', $tel)) {
+    //         $errs[] = 'Telefone invÃ¡lido.';
+    //     }
+    //     if ($errs) {
+    //         Flash::set('error', implode(' ', $errs));
+    //         $this->redirect('/conta/dados');
+    //         return;
+    //     }
+
+    //     $pdo->beginTransaction();
+    //     try {
+    //         $pdo->prepare('UPDATE usuario SET nome = ? WHERE id = ?')->execute([$nome, $u['id']]);
+
+    //         if ($clienteId) {
+    //             $pdo->prepare('UPDATE cliente SET telefone = ? WHERE id = ?')
+    //                 ->execute([$tel !== '' ? $tel : null, $clienteId]);
+    //         }
+
+    //         $pdo->commit();
+    //         // manter compat com navbar antiga
+    //         $_SESSION['user']['nome'] = $nome;
+    //         $_SESSION['nome'] = $nome;
+
+    //         Flash::set('success', 'Dados atualizados.');
+    //     } catch (\Throwable $e) {
+    //         $pdo->rollBack();
+    //         Flash::set('error', 'Não foi possível salvar seus dados.');
+    //     }
+    //     $this->redirect('/conta/dados');
+    // }
+
     public function salvarPerfil(): void
     {
         if (!$this->validateCsrf($_POST, '/conta/dados')) return;
@@ -696,14 +742,39 @@ final class ContaController extends BaseContaController
         $u = Auth::user();
         $clienteId = Auth::clienteId();
 
-        $nome = trim((string)($_POST['nome'] ?? ''));
-        $tel  = trim((string)($_POST['telefone'] ?? ''));
+        // Entradas do form
+        $nome        = trim((string)($_POST['nome'] ?? ''));
+        $tel         = trim((string)($_POST['telefone'] ?? ''));
+        $cpfRaw      = trim((string)($_POST['cpf'] ?? ''));          // pode vir com máscara
+        $nascRaw     = trim((string)($_POST['nascimento'] ?? ''));   // yyyy-mm-dd (input date)
 
-        $errs = [];
-        if ($nome === '') $errs[] = 'Informe seu nome.';
-        if ($tel !== '' && !preg_match('/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/', $tel)) {
-            $errs[] = 'Telefone invÃ¡lido.';
+        // Normalizações
+        $cpf = $cpfRaw !== '' ? preg_replace('/\D+/', '', $cpfRaw) : '';
+        $nascimento = null;
+        if ($nascRaw !== '') {
+            // aceita 'Y-m-d' do input date direto
+            $dt = \DateTime::createFromFormat('Y-m-d', $nascRaw);
+            if ($dt instanceof \DateTime) {
+                $nascimento = $dt->format('Y-m-d');
+            }
         }
+
+        // Validações
+        $errs = [];
+        if ($nome === '') {
+            $errs[] = 'Informe seu nome.';
+        }
+        if ($tel !== '' && !preg_match('/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/', $tel)) {
+            $errs[] = 'Telefone inválido.';
+        }
+        if ($cpf !== '' && !preg_match('/^\d{11}$/', $cpf)) {
+            $errs[] = 'CPF inválido (use 11 dígitos).';
+        }
+        // (Opcional) valida dígitos verificadores do CPF:
+        if ($cpf !== '' && !$this->validaCpf($cpf)) {
+            $errs[] = 'CPF inválido.';
+        }
+
         if ($errs) {
             Flash::set('error', implode(' ', $errs));
             $this->redirect('/conta/dados');
@@ -712,14 +783,22 @@ final class ContaController extends BaseContaController
 
         $pdo->beginTransaction();
         try {
+            // Atualiza nome do usuário
             $pdo->prepare('UPDATE usuario SET nome = ? WHERE id = ?')->execute([$nome, $u['id']]);
 
+            // Atualiza dados do cliente (telefone, cpf, nascimento)
             if ($clienteId) {
-                $pdo->prepare('UPDATE cliente SET telefone = ? WHERE id = ?')
-                    ->execute([$tel !== '' ? $tel : null, $clienteId]);
+                $pdo->prepare('UPDATE cliente SET telefone = ?, cpf = ?, nascimento = ? WHERE id = ?')
+                    ->execute([
+                        $tel !== '' ? $tel : null,
+                        $cpf !== '' ? $cpf : null,
+                        $nascimento, // já é null ou 'Y-m-d'
+                        $clienteId
+                    ]);
             }
 
             $pdo->commit();
+
             // manter compat com navbar antiga
             $_SESSION['user']['nome'] = $nome;
             $_SESSION['nome'] = $nome;
@@ -731,6 +810,30 @@ final class ContaController extends BaseContaController
         }
         $this->redirect('/conta/dados');
     }
+
+    /**
+     * Validação simples de CPF (com dígitos verificadores).
+     */
+    private function validaCpf(string $cpf): bool
+    {
+        if (!preg_match('/^\d{11}$/', $cpf)) return false;
+        if (preg_match('/^(\\d)\\1{10}$/', $cpf)) return false; // repetidos
+
+        // cálculo DV1
+        $soma = 0;
+        for ($i = 0, $peso = 10; $i < 9; $i++, $peso--) $soma += (int)$cpf[$i] * $peso;
+        $resto = $soma % 11;
+        $dv1 = $resto < 2 ? 0 : 11 - $resto;
+
+        // cálculo DV2
+        $soma = 0;
+        for ($i = 0, $peso = 11; $i < 10; $i++, $peso--) $soma += (int)$cpf[$i] * $peso;
+        $resto = $soma % 11;
+        $dv2 = $resto < 2 ? 0 : 11 - $resto;
+
+        return ((int)$cpf[9] === $dv1) && ((int)$cpf[10] === $dv2);
+    }
+
 
     public function atualizarSenha(): void
     {
