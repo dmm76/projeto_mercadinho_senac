@@ -64,7 +64,7 @@ $statusAtual = $mensagem['status'] ?? 'aberta';
             <div class="card-body">
               <?php if (($mensagem['resposta'] ?? '') !== ''): ?>
                 <div class="mb-3">
-                  <span class="form-label d-block">Resposta registrada</span>\n                  <textarea class="form-control" rows="3" disabled><?= $h($mensagem['resposta']) ?></textarea>
+                  <span class="form-label d-block">Resposta registrada</span><textarea class="form-control" rows="3" disabled><?= $h($mensagem['resposta']) ?></textarea>
                   <div class="form-text">Respondida em <?= $h($mensagem['respondida_em'] ?? '-') ?></div>
                 </div>
               <?php endif; ?>
