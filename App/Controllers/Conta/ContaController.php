@@ -86,7 +86,7 @@ final class ContaController extends BaseContaController
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
-            Flash::set('error', 'Pedido inválido.');
+            Flash::set('error', 'Pedido inv??lido.');
             $this->redirect('/conta/pedidos');
         }
         $this->verPedido($id);
@@ -98,7 +98,7 @@ final class ContaController extends BaseContaController
         $pdo = Database::getConnection();
         $clienteId = $this->clienteIdOrFail();
 
-        // CabeÃ§alho do pedido
+        // Cabe????alho do pedido
         $cab = $pdo->prepare(
             'SELECT id,
                     codigo_externo AS codigo,
@@ -112,7 +112,7 @@ final class ContaController extends BaseContaController
         $pedido = $cab->fetch(PDO::FETCH_ASSOC);
 
         if (!$pedido) {
-            Flash::set('error', 'Pedido não encontrado.');
+            Flash::set('error', 'Pedido n??o encontrado.');
             $this->redirect('/conta/pedidos');
         }
 
@@ -138,7 +138,7 @@ final class ContaController extends BaseContaController
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
-            Flash::set('error', 'Pedido inválido.');
+            Flash::set('error', 'Pedido inv??lido.');
             $this->redirect('/conta/pedidos');
         }
         $this->notaPedido($id);
@@ -355,7 +355,7 @@ final class ContaController extends BaseContaController
         $u = Auth::user();
 
         $cliente = [];
-        $clienteId = Auth::clienteId(); // já cria se não existir (conforme sua Auth)
+        $clienteId = Auth::clienteId(); // j?? cria se n??o existir (conforme sua Auth)
         if ($clienteId) {
             $st = $pdo->prepare('SELECT telefone, cpf, nascimento FROM cliente WHERE id = ?');
             $st->execute([$clienteId]);
@@ -374,14 +374,14 @@ final class ContaController extends BaseContaController
     {
         $id = (int)($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            Flash::set('error', 'ID inválido.');
+            Flash::set('error', 'ID inv??lido.');
             $this->redirect('/conta/enderecos');
             exit;
         }
         return $id;
     }
 
-    /* ========= ENDEREÇOS ========= */
+    /* ========= ENDERE??OS ========= */
 
     public function enderecos(): void
     {
@@ -453,11 +453,11 @@ final class ContaController extends BaseContaController
             ]);
 
             $pdo->commit();
-            Flash::set('success', 'Endereço cadastrado com sucesso.');
+            Flash::set('success', 'Endere??o cadastrado com sucesso.');
             $this->redirect('/conta/enderecos');
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            Flash::set('error', 'Erro ao salvar endereço.');
+            Flash::set('error', 'Erro ao salvar endere??o.');
             $this->render('conta/enderecos/form', [
                 'isEdit'    => false,
                 'endereco'  => $in,
@@ -494,7 +494,7 @@ final class ContaController extends BaseContaController
         $endereco = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$endereco) {
-            Flash::set('error', 'Endereço não encontrado.');
+            Flash::set('error', 'Endere??o n??o encontrado.');
             $this->redirect('/conta/enderecos');
         }
 
@@ -531,7 +531,7 @@ final class ContaController extends BaseContaController
             $stmt = $pdo->prepare('SELECT 1 FROM endereco WHERE id = ? AND cliente_id = ?');
             $stmt->execute([$id, $clienteId]);
             if (!$stmt->fetchColumn()) {
-                throw new \RuntimeException('Endereço inválido.');
+                throw new \RuntimeException('Endere??o inv??lido.');
             }
 
             if ($data['principal'] === 1) {
@@ -557,11 +557,11 @@ final class ContaController extends BaseContaController
             ]);
 
             $pdo->commit();
-            Flash::set('success', 'Endereço atualizado com sucesso.');
+            Flash::set('success', 'Endere??o atualizado com sucesso.');
             $this->redirect('/conta/enderecos');
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            Flash::set('error', 'Erro ao atualizar endereço.');
+            Flash::set('error', 'Erro ao atualizar endere??o.');
             $this->redirect('/conta/enderecos');
         }
     }
@@ -584,7 +584,7 @@ final class ContaController extends BaseContaController
         $countStmt->execute([$clienteId]);
         $total = (int)$countStmt->fetchColumn();
         if ($total <= 1) {
-            Flash::set('error', 'Mantenha pelo menos um endereço cadastrado.');
+            Flash::set('error', 'Mantenha pelo menos um endere??o cadastrado.');
             $this->redirect('/conta/enderecos');
         }
 
@@ -614,17 +614,17 @@ final class ContaController extends BaseContaController
             $stmt = $pdo->prepare('SELECT 1 FROM endereco WHERE id = ? AND cliente_id = ?');
             $stmt->execute([$id, $clienteId]);
             if (!$stmt->fetchColumn()) {
-                throw new \RuntimeException('Endereço inválido.');
+                throw new \RuntimeException('Endere??o inv??lido.');
             }
 
             $pdo->prepare('UPDATE endereco SET principal = 0 WHERE cliente_id = ?')->execute([$clienteId]);
             $pdo->prepare('UPDATE endereco SET principal = 1 WHERE id = ? AND cliente_id = ?')->execute([$id, $clienteId]);
 
             $pdo->commit();
-            Flash::set('success', 'Endereço definido como principal.');
+            Flash::set('success', 'Endere??o definido como principal.');
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            Flash::set('error', 'Não foi possí­vel definir como principal.');
+            Flash::set('error', 'N??o foi poss????vel definir como principal.');
         }
         $this->redirect('/conta/enderecos');
     }
@@ -635,7 +635,7 @@ final class ContaController extends BaseContaController
     {
         $id = Auth::clienteId();
         if ($id !== null) return $id;
-        Flash::set('error', 'Seu cadastro de cliente não foi localizado.');
+        Flash::set('error', 'Seu cadastro de cliente n??o foi localizado.');
         $this->redirect('/conta/dados');
         exit;
     }
@@ -664,15 +664,15 @@ final class ContaController extends BaseContaController
         $errors = [];
         $ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
-        if ($in['nome'] === '')        $errors[] = 'Nome é obrigatório.';
-        if ($in['cep'] === '')         $errors[] = 'CEP é obrigatório.';
-        if ($in['logradouro'] === '')  $errors[] = 'Logradouro é obrigatório.';
-        if ($in['numero'] === '')      $errors[] = 'Número é obrigatório.';
-        if ($in['bairro'] === '')      $errors[] = 'Bairro é obrigatório.';
-        if ($in['cidade'] === '')      $errors[] = 'Cidade é obrigatória.';
-        if (!in_array($in['uf'], $ufs, true)) $errors[] = 'UF inválida.';
+        if ($in['nome'] === '')        $errors[] = 'Nome ?? obrigat??rio.';
+        if ($in['cep'] === '')         $errors[] = 'CEP ?? obrigat??rio.';
+        if ($in['logradouro'] === '')  $errors[] = 'Logradouro ?? obrigat??rio.';
+        if ($in['numero'] === '')      $errors[] = 'N??mero ?? obrigat??rio.';
+        if ($in['bairro'] === '')      $errors[] = 'Bairro ?? obrigat??rio.';
+        if ($in['cidade'] === '')      $errors[] = 'Cidade ?? obrigat??ria.';
+        if (!in_array($in['uf'], $ufs, true)) $errors[] = 'UF inv??lida.';
         if ($in['cep'] !== '' && !preg_match('/^\d{5}-?\d{3}$/', $in['cep'])) {
-            $errors[] = 'CEP inválido (use 00000-000).';
+            $errors[] = 'CEP inv??lido (use 00000-000).';
         }
         $in['cep'] = preg_replace('/^(\d{5})-?(\d{3})$/', '$1-$2', $in['cep']);
 
@@ -683,7 +683,7 @@ final class ContaController extends BaseContaController
     {
         $token = isset($src['csrf']) ? (string)$src['csrf'] : null;
         if (!Csrf::check($token)) {
-            Flash::set('error', 'Sessão expirada. Recarregue a página e tente novamente.');
+            Flash::set('error', 'Sess??o expirada. Recarregue a p??gina e tente novamente.');
             $this->redirect($fallbackPath);
             return false;
         }
@@ -704,7 +704,7 @@ final class ContaController extends BaseContaController
     //     $errs = [];
     //     if ($nome === '') $errs[] = 'Informe seu nome.';
     //     if ($tel !== '' && !preg_match('/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/', $tel)) {
-    //         $errs[] = 'Telefone invÃ¡lido.';
+    //         $errs[] = 'Telefone inv????lido.';
     //     }
     //     if ($errs) {
     //         Flash::set('error', implode(' ', $errs));
@@ -729,7 +729,7 @@ final class ContaController extends BaseContaController
     //         Flash::set('success', 'Dados atualizados.');
     //     } catch (\Throwable $e) {
     //         $pdo->rollBack();
-    //         Flash::set('error', 'Não foi possível salvar seus dados.');
+    //         Flash::set('error', 'N??o foi poss??vel salvar seus dados.');
     //     }
     //     $this->redirect('/conta/dados');
     // }
@@ -745,10 +745,10 @@ final class ContaController extends BaseContaController
         // Entradas do form
         $nome        = trim((string)($_POST['nome'] ?? ''));
         $tel         = trim((string)($_POST['telefone'] ?? ''));
-        $cpfRaw      = trim((string)($_POST['cpf'] ?? ''));          // pode vir com máscara
+        $cpfRaw      = trim((string)($_POST['cpf'] ?? ''));          // pode vir com m??scara
         $nascRaw     = trim((string)($_POST['nascimento'] ?? ''));   // yyyy-mm-dd (input date)
 
-        // Normalizações
+        // Normaliza????es
         $cpf = $cpfRaw !== '' ? preg_replace('/\D+/', '', $cpfRaw) : '';
         $nascimento = null;
         if ($nascRaw !== '') {
@@ -759,20 +759,20 @@ final class ContaController extends BaseContaController
             }
         }
 
-        // Validações
+        // Valida????es
         $errs = [];
         if ($nome === '') {
             $errs[] = 'Informe seu nome.';
         }
         if ($tel !== '' && !preg_match('/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/', $tel)) {
-            $errs[] = 'Telefone inválido.';
+            $errs[] = 'Telefone inv??lido.';
         }
         if ($cpf !== '' && !preg_match('/^\d{11}$/', $cpf)) {
-            $errs[] = 'CPF inválido (use 11 dígitos).';
+            $errs[] = 'CPF inv??lido (use 11 d??gitos).';
         }
-        // (Opcional) valida dígitos verificadores do CPF:
+        // (Opcional) valida d??gitos verificadores do CPF:
         if ($cpf !== '' && !$this->validaCpf($cpf)) {
-            $errs[] = 'CPF inválido.';
+            $errs[] = 'CPF inv??lido.';
         }
 
         if ($errs) {
@@ -783,7 +783,7 @@ final class ContaController extends BaseContaController
 
         $pdo->beginTransaction();
         try {
-            // Atualiza nome do usuário
+            // Atualiza nome do usu??rio
             $pdo->prepare('UPDATE usuario SET nome = ? WHERE id = ?')->execute([$nome, $u['id']]);
 
             // Atualiza dados do cliente (telefone, cpf, nascimento)
@@ -792,7 +792,7 @@ final class ContaController extends BaseContaController
                     ->execute([
                         $tel !== '' ? $tel : null,
                         $cpf !== '' ? $cpf : null,
-                        $nascimento, // já é null ou 'Y-m-d'
+                        $nascimento, // j?? ?? null ou 'Y-m-d'
                         $clienteId
                     ]);
             }
@@ -806,26 +806,26 @@ final class ContaController extends BaseContaController
             Flash::set('success', 'Dados atualizados.');
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            Flash::set('error', 'Não foi possível salvar seus dados.');
+            Flash::set('error', 'N??o foi poss??vel salvar seus dados.');
         }
         $this->redirect('/conta/dados');
     }
 
     /**
-     * Validação simples de CPF (com dígitos verificadores).
+     * Valida????o simples de CPF (com d??gitos verificadores).
      */
     private function validaCpf(string $cpf): bool
     {
         if (!preg_match('/^\d{11}$/', $cpf)) return false;
         if (preg_match('/^(\\d)\\1{10}$/', $cpf)) return false; // repetidos
 
-        // cálculo DV1
+        // c??lculo DV1
         $soma = 0;
         for ($i = 0, $peso = 10; $i < 9; $i++, $peso--) $soma += (int)$cpf[$i] * $peso;
         $resto = $soma % 11;
         $dv1 = $resto < 2 ? 0 : 11 - $resto;
 
-        // cálculo DV2
+        // c??lculo DV2
         $soma = 0;
         for ($i = 0, $peso = 11; $i < 10; $i++, $peso--) $soma += (int)$cpf[$i] * $peso;
         $resto = $soma % 11;
@@ -847,7 +847,7 @@ final class ContaController extends BaseContaController
         $s2    = (string)($_POST['senha2'] ?? '');
 
         if ($s1 !== $s2) {
-            Flash::set('error', 'As senhas não conferem.');
+            Flash::set('error', 'As senhas n??o conferem.');
             $this->redirect('/conta/dados');
             return;
         }
@@ -870,7 +870,7 @@ final class ContaController extends BaseContaController
         $ok = $pdo->prepare('UPDATE usuario SET senha_hash = ? WHERE id = ?')
             ->execute([password_hash($s1, PASSWORD_DEFAULT), $u['id']]);
 
-        Flash::set($ok ? 'success' : 'error', $ok ? 'Senha atualizada.' : 'NÃ£o foi possÃ­vel atualizar a senha.');
+        Flash::set($ok ? 'success' : 'error', $ok ? 'Senha atualizada.' : 'N????o foi poss????vel atualizar a senha.');
         $this->redirect('/conta/dados');
     }
 
