@@ -17,36 +17,157 @@ final class PixPaymentService
      *
      * @return array<string,mixed>
      */
+    // public function createPayment(int $pedidoId): array
+    // {
+    //     $pdo = Database::getConnection();
+    //     $pedido = $this->loadPedido($pdo, $pedidoId);
+    //     if (($pedido['pagamento'] ?? '') !== 'pix') {
+    //         throw new \RuntimeException('Pedido nao esta configurado para PIX.');
+    //     }
+
+    //     $existingId = $this->loadPixPaymentId($pdo, $pedidoId);
+    //     if ($existingId > 0) {
+    //         return $this->fetchPayment($pedidoId);
+    //     }
+
+    //     $externalRef = $this->ensureOrderCode($pdo, $pedido);
+
+    //     $payment = new Payment();
+    //     $payment->transaction_amount = (float)($pedido['total'] ?? 0.0);
+    //     $payment->description = 'Pedido #' . $pedidoId;
+    //     $payment->payment_method_id = 'pix';
+    //     $payment->external_reference = $externalRef;
+    //     $payment->payer = $this->buildPayerPayload($pedido);
+
+    //     // ...
+    //     if ($payment->save() === false || !isset($payment->id)) {
+    //         // SDK v2.x coloca o erro em $payment->error
+    //         $errInfo = null;
+    //         if (property_exists($payment, 'error') && $payment->error) {
+    //             $errInfo = json_encode($payment->error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    //         } elseif (method_exists($payment, 'getLastApiResponse')) {
+
+    //             $errInfo = json_encode($payment->error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    //         }
+
+    //         error_log('[PIX][create] falha: ' . ($errInfo ?: 'sem detalhe'));
+    //         throw new \RuntimeException('Erro ao criar pagamento PIX: ' . ($errInfo ?: 'sem detalhe (veja error_log)'));
+    //     }
+
+
+    //     $data = $this->mapPayment($payment);
+    //     $this->persistPayment($pdo, $pedidoId, $data);
+    //     return $data;
+    // }
+
+    //metodo modificado para a versao 2.6 do mercado pago com curl
     public function createPayment(int $pedidoId): array
     {
-        $pdo = Database::getConnection();
+        $pdo    = Database::getConnection();
         $pedido = $this->loadPedido($pdo, $pedidoId);
-        if (($pedido['pagamento'] ?? '') !== 'pix') {
+
+        // Aceita os dois rótulos do seu fluxo (ajuste se necessário)
+        $modo = (string)($pedido['pagamento'] ?? '');
+        if (!in_array($modo, ['pix', 'gateway'], true)) {
             throw new \RuntimeException('Pedido nao esta configurado para PIX.');
         }
 
+        // Se já existe pagamento criado, só busca/atualiza e retorna
         $existingId = $this->loadPixPaymentId($pdo, $pedidoId);
         if ($existingId > 0) {
             return $this->fetchPayment($pedidoId);
         }
 
+        // Garante um código externo (external_reference)
         $externalRef = $this->ensureOrderCode($pdo, $pedido);
 
-        $payment = new Payment();
-        $payment->transaction_amount = (float)($pedido['total'] ?? 0.0);
-        $payment->description = 'Pedido #' . $pedidoId;
-        $payment->payment_method_id = 'pix';
-        $payment->external_reference = $externalRef;
-        $payment->payer = $this->buildPayerPayload($pedido);
-
-        if ($payment->save() === false || !isset($payment->id)) {
-            throw new \RuntimeException('Erro ao criar pagamento PIX.');
+        // Token do MP
+        $accessToken = $_ENV['MP_ACCESS_TOKEN'] ?? getenv('MP_ACCESS_TOKEN') ?? '';
+        if ($accessToken === '') {
+            throw new \RuntimeException('Access token ausente (MP_ACCESS_TOKEN).');
         }
 
-        $data = $this->mapPayment($payment);
-        $this->persistPayment($pdo, $pedidoId, $data);
-        return $data;
+        // Valor sempre com ponto e 2 casas
+        $amount = round((float)str_replace(',', '.', (string)($pedido['total'] ?? 0)), 2);
+        if ($amount <= 0) {
+            throw new \RuntimeException('Valor do pedido inválido para PIX.');
+        }
+
+        // Monta o payload da criação do pagamento Pix
+        $payload = [
+            'transaction_amount' => $amount,
+            'description'        => 'Pedido #' . $pedidoId,
+            'payment_method_id'  => 'pix',
+            'external_reference' => $externalRef,
+            'payer'              => $this->buildPayerPayload($pedido),
+        ];
+
+        // Opcional: notification_url pública para receber webhooks
+        $appUrl = $_ENV['APP_URL'] ?? getenv('APP_URL');
+        if (!empty($appUrl)) {
+            $payload['notification_url'] = rtrim($appUrl, '/') . '/webhooks/mercadopago';
+        }
+
+        // --- Criação via cURL com idempotência ---
+        $idempotencyKey = bin2hex(random_bytes(16));
+        $ch = curl_init('https://api.mercadopago.com/v1/payments');
+        curl_setopt_array($ch, [
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json',
+                'X-Idempotency-Key: ' . $idempotencyKey,
+            ],
+            CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 25,
+            CURLOPT_SSL_VERIFYPEER => true, // em Windows, verifique curl.cainfo no php.ini se der erro de CA
+        ]);
+
+        $resp = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if ($resp === false) {
+            throw new \RuntimeException('Falha de rede ao criar Pix: ' . $err);
+        }
+
+        $body = json_decode($resp, true);
+        if (!is_array($body)) {
+            error_log('[PIX][create] resposta não JSON: ' . $resp);
+            throw new \RuntimeException('Erro ao criar Pix: resposta inválida do gateway.');
+        }
+
+        if ($code >= 400) {
+            // Deixe logado o corpo para depurar rapidamente (message, error, causes, etc.)
+            error_log('[PIX][create][HTTP ' . $code . '] ' . $resp);
+            $msg = $body['message'] ?? 'erro';
+            throw new \RuntimeException('Erro ao criar Pix (HTTP ' . $code . '): ' . $msg);
+        }
+
+        // Mapeia os campos que sua view/DAO já esperam
+        $poi = $body['point_of_interaction']['transaction_data'] ?? [];
+        $mapped = [
+            'id'                 => (int)($body['id'] ?? 0),
+            'status'             => (string)($body['status'] ?? ''),
+            'status_detail'      => (string)($body['status_detail'] ?? ''),
+            'description'        => (string)($body['description'] ?? ''),
+            'external_reference' => (string)($body['external_reference'] ?? ''),
+            'transaction_amount' => (float)($body['transaction_amount'] ?? 0),
+            'date_created'       => (string)($body['date_created'] ?? ''),
+            'date_approved'      => (string)($body['date_approved'] ?? ''),
+            'date_of_expiration' => (string)($body['date_of_expiration'] ?? ''),
+            'qr_code'            => is_array($poi) ? ($poi['qr_code'] ?? null) : (is_object($poi) ? ($poi->qr_code ?? null) : null),
+            'qr_code_base64'     => is_array($poi) ? ($poi['qr_code_base64'] ?? null) : (is_object($poi) ? ($poi->qr_code_base64 ?? null) : null),
+            'ticket_url'         => is_array($poi) ? ($poi['ticket_url'] ?? null) : (is_object($poi) ? ($poi->ticket_url ?? null) : null),
+        ];
+
+        // Persiste no banco e devolve
+        $this->persistPayment($pdo, $pedidoId, $mapped);
+        return $mapped;
     }
+
 
     /**
      * Recupera o pagamento PIX no Mercado Pago e sincroniza o status local.
@@ -188,16 +309,16 @@ final class PixPaymentService
         $expiresAt = $this->normalizeDate($data['date_of_expiration'] ?? null);
         $stmt = $pdo->prepare(
             'INSERT INTO pedido_pix (pedido_id, mp_payment_id, status, status_detail, qr_code, qr_code_base64, ticket_url, expires_at)'
-            . ' VALUES (:pedido_id, :mp_payment_id, :status, :status_detail, :qr_code, :qr_code_base64, :ticket_url, :expires_at)'
-            . ' ON DUPLICATE KEY UPDATE'
-            . '   mp_payment_id = VALUES(mp_payment_id),'
-            . '   status = VALUES(status),'
-            . '   status_detail = VALUES(status_detail),'
-            . '   qr_code = VALUES(qr_code),'
-            . '   qr_code_base64 = VALUES(qr_code_base64),'
-            . '   ticket_url = VALUES(ticket_url),'
-            . '   expires_at = VALUES(expires_at),'
-            . '   updated_at = CURRENT_TIMESTAMP'
+                . ' VALUES (:pedido_id, :mp_payment_id, :status, :status_detail, :qr_code, :qr_code_base64, :ticket_url, :expires_at)'
+                . ' ON DUPLICATE KEY UPDATE'
+                . '   mp_payment_id = VALUES(mp_payment_id),'
+                . '   status = VALUES(status),'
+                . '   status_detail = VALUES(status_detail),'
+                . '   qr_code = VALUES(qr_code),'
+                . '   qr_code_base64 = VALUES(qr_code_base64),'
+                . '   ticket_url = VALUES(ticket_url),'
+                . '   expires_at = VALUES(expires_at),'
+                . '   updated_at = CURRENT_TIMESTAMP'
         );
         $stmt->execute([
             ':pedido_id' => $pedidoId,

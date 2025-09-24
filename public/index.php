@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Core\Router;
+use MercadoPago\SDK;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -13,7 +14,7 @@ $dotenv->safeLoad();
 
 $accessToken = trim((string)($_ENV['MP_ACCESS_TOKEN'] ?? ''));
 if ($accessToken !== '') {
-    \MercadoPago\SDK::setAccessToken($accessToken);
+    SDK::setAccessToken($accessToken);
 }
 
 /** 2) Erros */
