@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controllers\Site;
@@ -8,14 +9,16 @@ use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Url;
 use App\DAO\Database;
-use App\Models\Pedido; // <- AJUSTE: App\Model, não App\Models
+use App\Models\Pedido; // <- AJUSTE: App\Model, nao App\Models
 use PDO;
 
 final class PedidoController extends Controller
 {
     private function &carrinho(): array
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         if (!isset($_SESSION['carrinho']) || !is_array($_SESSION['carrinho'])) {
             $_SESSION['carrinho'] = [];
         }
@@ -24,10 +27,12 @@ final class PedidoController extends Controller
 
     private function exigirClienteId(): int
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $cid = (int)($_SESSION['cliente_id'] ?? 0); // <- AJUSTE: usamos cliente_id plano na sessão
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $cid = (int)($_SESSION['cliente_id'] ?? 0); // <- AJUSTE: usamos cliente_id plano na sessao
         if ($cid <= 0) {
-            Flash::set('error', 'Faça login para continuar.');
+            Flash::set('error', 'Faca login para continuar.');
             header('Location: ' . Url::to('/login'), true, 303);
             exit;
         }
@@ -60,24 +65,24 @@ final class PedidoController extends Controller
         $this->render('site/pedidos/ver', ['title' => 'Pedido #' . $pedidoId, 'pedido' => $pedido]);
     }
 
-    /** Exibe o checkout com os endereços do cliente */
+    /** Exibe o checkout com os enderecos do cliente */
     public function checkout(): void
     {
         $clienteId = $this->exigirClienteId();
         $carrinho = $this->carrinho();
 
         if (!$carrinho) {
-            Flash::set('error', 'Seu carrinho está vazio.');
+            Flash::set('error', 'Seu carrinho esta vazio.');
             header('Location: ' . Url::to('/carrinho'), true, 303);
             exit;
         }
 
         $pdo = Database::getConnection();
         $q = $pdo->prepare(
-            "SELECT id, rotulo, logradouro, numero, bairro, cidade, uf, cep, principal
+            'SELECT id, rotulo, logradouro, numero, bairro, cidade, uf, cep, principal
                FROM endereco
               WHERE cliente_id = ?
-           ORDER BY principal DESC, criado_em DESC"
+           ORDER BY principal DESC, criado_em DESC'
         );
         $q->execute([$clienteId]);
         $enderecos = $q->fetchAll(PDO::FETCH_ASSOC);
@@ -95,7 +100,7 @@ final class PedidoController extends Controller
         $clienteId = $this->exigirClienteId();
 
         if (!Csrf::check($_POST['csrf'] ?? null)) {
-            Flash::set('error', 'Token inválido.');
+            Flash::set('error', 'Token invalido.');
             header('Location: ' . Url::to('/checkout'), true, 303);
             exit;
         }
@@ -115,28 +120,28 @@ final class PedidoController extends Controller
         $entregaOk = in_array($entrega, ['retirada', 'entrega'], true);
         $pagOk     = in_array($pagamento, ['na_entrega', 'pix', 'cartao', 'gateway'], true);
         if (!$entregaOk || !$pagOk) {
-            Flash::set('error', 'Dados inválidos no checkout.');
+            Flash::set('error', 'Dados invalidos no checkout.');
             header('Location: ' . Url::to('/checkout'), true, 303);
             exit;
         }
 
-        // Se for entrega domiciliar: endereço é obrigatório e deve pertencer ao cliente
+        // Se for entrega domiciliar: endereco eh obrigatorio e deve pertencer ao cliente
         if ($entrega === 'entrega') {
             if (!$enderecoId) {
-                Flash::set('error', 'Selecione um endereço de entrega.');
+                Flash::set('error', 'Selecione um endereco de entrega.');
                 header('Location: ' . Url::to('/checkout'), true, 303);
                 exit;
             }
             $pdo = Database::getConnection();
-            $chk = $pdo->prepare("SELECT 1 FROM endereco WHERE id = ? AND cliente_id = ?");
+            $chk = $pdo->prepare('SELECT 1 FROM endereco WHERE id = ? AND cliente_id = ?');
             $chk->execute([$enderecoId, $clienteId]);
             if (!$chk->fetchColumn()) {
-                Flash::set('error', 'Endereço inválido.');
+                Flash::set('error', 'Endereco invalido.');
                 header('Location: ' . Url::to('/checkout'), true, 303);
                 exit;
             }
         } else {
-            $enderecoId = null; // retirada não precisa endereço
+            $enderecoId = null; // retirada nao precisa endereco
         }
 
         try {
@@ -148,15 +153,21 @@ final class PedidoController extends Controller
                 $carrinho
             );
 
-            // Limpar carrinho após criar pedido
+            // Limpar carrinho apos criar pedido
             $_SESSION['carrinho'] = [];
 
             Flash::set('success', 'Pedido criado com sucesso!');
+
+            if ($pagamento === 'pix') {
+                header('Location: ' . Url::to('/pagamentos/pix/' . $pedidoId), true, 303);
+                exit;
+            }
+
             header('Location: ' . Url::to('/conta/pedidos/' . $pedidoId), true, 303);
             exit;
         } catch (\Throwable $e) {
-            // Em produção, logue o erro
-            Flash::set('error', 'Não foi possível finalizar: ' . $e->getMessage());
+            // Em producao, logue o erro
+            Flash::set('error', 'Nao foi possivel finalizar: ' . $e->getMessage());
             header('Location: ' . Url::to('/checkout'), true, 303);
             exit;
         }

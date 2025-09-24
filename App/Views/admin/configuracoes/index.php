@@ -133,7 +133,7 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
                                 persistência (ex.: tabela `configuracao`) e remova os atributos `disabled` deste
                                 formulário.
                             </div>
-                            <button type="button" class="btn btn-secondary" disabled>Salvar altera��es</button>
+                            <button type="button" class="btn btn-secondary" disabled>Salvar alterações</button>
                         </form>
                     </div>
                 </div>

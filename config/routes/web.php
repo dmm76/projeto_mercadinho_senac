@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\ContatoController;
@@ -11,22 +10,23 @@ use App\Controllers\Site\FavoritosController;
 use App\Controllers\Conta\ContaController;
 use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
+use App\Controllers\Site\PagamentoController as SitePagamentoController;
 
 /**
- * SITE (pÃƒÆ’Ã‚Âºblico)
+ * SITE (p?blico)
  */
 $router->get('/', [HomeController::class, 'index']);
 
 // Auth
 $router->get('/login',      [AuthController::class, 'showLogin']);
-$router->post('/login',      [AuthController::class, 'login']);
+$router->post('/login',     [AuthController::class, 'login']);
 $router->get('/registrar',  [AuthController::class, 'showRegister']);
-$router->post('/registrar',  [AuthController::class, 'register']);
+$router->post('/registrar', [AuthController::class, 'register']);
 $router->get('/logout',     [AuthController::class, 'logout']);
 
 // Contato
-$router->get('/contato',  [ContatoController::class, 'show']);
-$router->post('/contato',  [ContatoController::class, 'send']);
+$router->get('/contato', [ContatoController::class, 'show']);
+$router->post('/contato', [ContatoController::class, 'send']);
 
 // Produtos
 $router->get('/produtos/(\d+)', [SiteProdutoController::class, 'ver']);   // detalhe
@@ -37,38 +37,42 @@ $router->get('/buscar',         [SiteProdutoController::class, 'index']); // bus
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
 // Carrinho
-$router->get('/carrinho',                    [CarrinhoController::class, 'index']);
-$router->get('/carrinho/adicionar/(\d+)',    [CarrinhoController::class, 'adicionarGet']); // fallback p/ links antigos (GET)
-$router->post('/carrinho/adicionar/(\d+)',    [CarrinhoController::class, 'adicionar']);
-$router->post('/carrinho/atualizar/(\d+)',    [CarrinhoController::class, 'atualizar']);
-$router->post('/carrinho/remover/(\d+)',      [CarrinhoController::class, 'remover']);
+$router->get('/carrinho',                 [CarrinhoController::class, 'index']);
+$router->get('/carrinho/adicionar/(\d+)', [CarrinhoController::class, 'adicionarGet']); // fallback p/ links antigos (GET)
+$router->post('/carrinho/adicionar/(\d+)', [CarrinhoController::class, 'adicionar']);
+$router->post('/carrinho/atualizar/(\d+)', [CarrinhoController::class, 'atualizar']);
+$router->post('/carrinho/remover/(\d+)',   [CarrinhoController::class, 'remover']);
 
 // Checkout
 $router->get('/checkout', [SitePedidoController::class, 'checkout']);  // exibe
 $router->post('/checkout', [SitePedidoController::class, 'finalizar']); // finaliza
 
+// Pagamentos PIX
+$router->get('/pagamentos/pix/(\d+)', [SitePagamentoController::class, 'pix']);
+$router->get('/pagamentos/pix/(\d+)/status', [SitePagamentoController::class, 'pixStatus']);
+
 /**
  * CONTA (cliente logado)
  */
-$router->get('/conta',                      [ContaController::class, 'dashboard']);
+$router->get('/conta', [ContaController::class, 'dashboard']);
 
-$router->get('/conta/pedidos',              [ContaController::class, 'pedidos']);
-$router->get('/conta/pedidos/(\d+)',        [ContaController::class, 'verPedido']);
-$router->get('/conta/pedidos/ver',          [ContaController::class, 'verPedidoQuery']); // legado ?id=
-$router->get('/conta/pedidos/nota',         [ContaController::class, 'notaPedidoQuery']); // nota com ?id=
+$router->get('/conta/pedidos',            [ContaController::class, 'pedidos']);
+$router->get('/conta/pedidos/(\d+)',      [ContaController::class, 'verPedido']);
+$router->get('/conta/pedidos/ver',        [ContaController::class, 'verPedidoQuery']); // legado ?id=
+$router->get('/conta/pedidos/nota',       [ContaController::class, 'notaPedidoQuery']); // nota com ?id=
 $router->get('/conta/pedidos/nota/(\d+)', [ContaController::class, 'notaPedido']);
 
-$router->get('/conta/dados',                [ContaController::class, 'dados']);
-$router->post('/conta/dados/perfil',        [ContaController::class, 'salvarPerfil']);
-$router->post('/conta/dados/senha',         [ContaController::class, 'atualizarSenha']);
+$router->get('/conta/dados',         [ContaController::class, 'dados']);
+$router->post('/conta/dados/perfil', [ContaController::class, 'salvarPerfil']);
+$router->post('/conta/dados/senha',  [ContaController::class, 'atualizarSenha']);
 
 $router->get('/conta/enderecos',           [ContaController::class, 'enderecos']);
 $router->get('/conta/enderecos/novo',      [ContaController::class, 'novoEndereco']);
 $router->get('/conta/enderecos/editar',    [ContaController::class, 'editarEnderecoQuery']); // legado ?id=
-$router->post('/conta/enderecos/novo',      [ContaController::class, 'criarEndereco']);
-$router->post('/conta/enderecos/editar',    [ContaController::class, 'atualizarEnderecoQuery']);
-$router->post('/conta/enderecos/excluir',   [ContaController::class, 'excluirEnderecoQuery']);
-$router->post('/conta/enderecos/principal', [ContaController::class, 'definirPrincipalQuery']);
+$router->post('/conta/enderecos/novo',     [ContaController::class, 'criarEndereco']);
+$router->post('/conta/enderecos/editar',   [ContaController::class, 'atualizarEnderecoQuery']);
+$router->post('/conta/enderecos/excluir',  [ContaController::class, 'excluirEnderecoQuery']);
+$router->post('/conta/enderecos/principal',[ContaController::class, 'definirPrincipalQuery']);
 
 /**
  * LEGADO / ALIASES
@@ -85,7 +89,7 @@ $router->get('/meus-pedidos', function (): void {
     exit;
 });
 $router->get('/meus-pedidos/(\d+)', function ($id): void {
-    header('Location: ' . \App\Core\Url::to('/conta/pedidos/' . (int)$id), true, 301);
+    header('Location: ' . \App\Core\Url::to('/conta/pedidos/' . (int) $id), true, 301);
     exit;
 });
 
@@ -117,6 +121,3 @@ $router->get('/health/autoload', function (): void {
         && class_exists(\App\Model\Usuario::class);
     echo $ok ? 'AUTOLOAD OK' : 'AUTOLOAD FAIL';
 });
-
-
-

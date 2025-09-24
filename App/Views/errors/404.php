@@ -12,7 +12,7 @@
     <div class="container py-5 text-center">
         <h1 class="display-6">404</h1>
         <p>Página não encontrada.</p>
-        <a class="btn btn-outline-secondary" href="/projeto_mercadinho_web/public/">Voltar</a>
+        <a class="btn btn-outline-secondary" href="/">Voltar</a>
     </div>
 </body>
 

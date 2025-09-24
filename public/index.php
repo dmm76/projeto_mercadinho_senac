@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Core\Router;
@@ -9,6 +10,11 @@ require __DIR__ . '/../vendor/autoload.php';
 $root = realpath(__DIR__ . '/..');
 $dotenv = Dotenv\Dotenv::createImmutable($root);
 $dotenv->safeLoad();
+
+$accessToken = trim((string)($_ENV['MP_ACCESS_TOKEN'] ?? ''));
+if ($accessToken !== '') {
+    \MercadoPago\SDK::setAccessToken($accessToken);
+}
 
 /** 2) Erros */
 if (($_ENV['APP_ENV'] ?? 'prod') === 'local') {
@@ -51,7 +57,9 @@ if (strpos($path, '/index.php') === 0) {
 
 // Garante formato /...
 $path = '/' . ltrim($path, '/');
-if ($path === '') $path = '/';
+if ($path === '') {
+    $path = '/';
+}
 
 /** 6) Despacha a rota limpa */
 $router->dispatch($method, $path);
