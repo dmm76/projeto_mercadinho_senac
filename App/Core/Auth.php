@@ -90,6 +90,22 @@ final class Auth
             $_SESSION[self::INTENDED_SESSION_KEY]
         ); // + limpa cliente_id, carrinho e destino
     }
+    public static function logoutEmTodosDispositivos(int $clienteId): void
+    {
+        self::ensureSession();
+
+        $sessCliente = isset($_SESSION['cliente_id']) && is_numeric($_SESSION['cliente_id'])
+            ? (int) $_SESSION['cliente_id']
+            : null;
+
+        if ($sessCliente === null) {
+            $sessCliente = self::clienteId();
+        }
+
+        if ($sessCliente !== null && $sessCliente === $clienteId) {
+            self::logout();
+        }
+    }
 
     /**
      * Autentica e carrega o usuario na sessao.

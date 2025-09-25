@@ -8,6 +8,7 @@ use App\Controllers\Site\ContatoController;
 use App\Controllers\Site\CarrinhoController;
 use App\Controllers\Site\FavoritosController;
 use App\Controllers\Conta\ContaController;
+use App\Controllers\Conta\SenhaController;
 use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
 use App\Controllers\Site\PagamentoController as SitePagamentoController;
@@ -47,6 +48,14 @@ $router->post('/carrinho/remover/(\d+)',   [CarrinhoController::class, 'remover'
 $router->get('/checkout', [SitePedidoController::class, 'checkout']);  // exibe
 $router->post('/checkout', [SitePedidoController::class, 'finalizar']); // finaliza
 
+// P??gina "Esqueci minha senha"
+$router->get('/conta/esqueci-senha', [SenhaController::class, 'create']);   // form
+$router->post('/conta/esqueci-senha', [SenhaController::class, 'store']);   // recebe email
+
+// P??gina de definir nova senha (com token)
+$router->get('/conta/resetar-senha', [SenhaController::class, 'edit']);     // form nova senha
+$router->post('/conta/resetar-senha', [SenhaController::class, 'update']);  // salva nova senha
+
 // Pagamentos PIX
 $router->get('/pagamentos/pix/(\d+)', [SitePagamentoController::class, 'pix']);
 $router->get('/pagamentos/pix/(\d+)/status', [SitePagamentoController::class, 'pixStatus']);
@@ -72,7 +81,7 @@ $router->get('/conta/enderecos/editar',    [ContaController::class, 'editarEnder
 $router->post('/conta/enderecos/novo',     [ContaController::class, 'criarEndereco']);
 $router->post('/conta/enderecos/editar',   [ContaController::class, 'atualizarEnderecoQuery']);
 $router->post('/conta/enderecos/excluir',  [ContaController::class, 'excluirEnderecoQuery']);
-$router->post('/conta/enderecos/principal',[ContaController::class, 'definirPrincipalQuery']);
+$router->post('/conta/enderecos/principal', [ContaController::class, 'definirPrincipalQuery']);
 
 /**
  * LEGADO / ALIASES
@@ -121,3 +130,4 @@ $router->get('/health/autoload', function (): void {
         && class_exists(\App\Model\Usuario::class);
     echo $ok ? 'AUTOLOAD OK' : 'AUTOLOAD FAIL';
 });
+

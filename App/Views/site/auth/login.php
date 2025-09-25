@@ -36,6 +36,7 @@
         </div>
         <button type="submit" class="btn btn-danger px-4">Entrar</button>
         <a href="<?= \App\Core\Url::to('/registrar') ?>" class="btn btn-link">Criar conta</a>
+        <a href="<?= \App\Core\Url::to('/conta/esqueci-senha') ?>" class="btn btn-link">Esqueci minha senha</a>
       </form>
     </div>
   </main>
