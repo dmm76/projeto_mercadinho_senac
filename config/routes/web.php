@@ -9,6 +9,7 @@ use App\Controllers\Site\CarrinhoController;
 use App\Controllers\Site\FavoritosController;
 use App\Controllers\Conta\ContaController;
 use App\Controllers\Conta\SenhaController;
+use App\Controllers\Site\PdvController;
 use App\Controllers\Site\ProdutoController as SiteProdutoController;
 use App\Controllers\Site\PedidoController  as SitePedidoController;
 use App\Controllers\Site\PagamentoController as SitePagamentoController;
@@ -48,11 +49,11 @@ $router->post('/carrinho/remover/(\d+)',   [CarrinhoController::class, 'remover'
 $router->get('/checkout', [SitePedidoController::class, 'checkout']);  // exibe
 $router->post('/checkout', [SitePedidoController::class, 'finalizar']); // finaliza
 
-// P??gina "Esqueci minha senha"
+// Página "Esqueci minha senha"
 $router->get('/conta/esqueci-senha', [SenhaController::class, 'create']);   // form
 $router->post('/conta/esqueci-senha', [SenhaController::class, 'store']);   // recebe email
 
-// P??gina de definir nova senha (com token)
+// Página de definir nova senha (com token)
 $router->get('/conta/resetar-senha', [SenhaController::class, 'edit']);     // form nova senha
 $router->post('/conta/resetar-senha', [SenhaController::class, 'update']);  // salva nova senha
 
@@ -82,6 +83,11 @@ $router->post('/conta/enderecos/novo',     [ContaController::class, 'criarEndere
 $router->post('/conta/enderecos/editar',   [ContaController::class, 'atualizarEnderecoQuery']);
 $router->post('/conta/enderecos/excluir',  [ContaController::class, 'excluirEnderecoQuery']);
 $router->post('/conta/enderecos/principal', [ContaController::class, 'definirPrincipalQuery']);
+
+// PDV (tela e APIs)
+$router->get('/pdv',                 [PdvController::class, 'index']);
+$router->get('/pdv/api/produtos',    [PdvController::class, 'apiProdutos']); // ?q=, ?limit=
+$router->post('/pdv/api/venda',      [PdvController::class, 'apiVenda']);    // JSON
 
 /**
  * LEGADO / ALIASES
