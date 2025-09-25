@@ -10,6 +10,7 @@ use App\Core\Url;
 use App\DAO\ClienteDAO;
 use App\DAO\Database;
 use App\DAO\PasswordResetTokenDAO;
+use App\Services\Mail\BrevoClient;
 use DateInterval;
 use DateTimeImmutable;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -41,7 +42,7 @@ final class SenhaController extends Controller
         }
 
         $email   = strtolower(trim((string) ($_POST['email'] ?? '')));
-        $generic = 'Se o e-mail existir, enviaremos um link de recuperação.';
+        $generic = 'Se o e-mail existir, enviaremos um link de recuperacao.';
         $isEmail = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 
         if ($email === '' || !$isEmail) {
@@ -81,7 +82,7 @@ final class SenhaController extends Controller
                 }
             }
         } catch (Throwable $e) {
-            error_log('Erro ao processar recuperação de senha: ' . $e->getMessage());
+            error_log('Erro ao processar recuperacao de senha: ' . $e->getMessage());
         }
 
         Flash::set('success', $generic);
@@ -108,14 +109,14 @@ final class SenhaController extends Controller
         $conf  = (string) ($_POST['senha_confirmacao'] ?? '');
 
         if ($token === '' || $senha === '' || $senha !== $conf || strlen($senha) < 6) {
-            Flash::set('error', 'Senha inválida ou não confere.');
+            Flash::set('error', 'Senha invalida ou nao confere.');
             $this->redirect('/conta/resetar-senha?token=' . urlencode($token));
             return;
         }
 
         $registro = $this->tokens->buscarValidoPorHash(hash('sha256', $token), new DateTimeImmutable());
         if (!$registro) {
-            Flash::set('error', 'Link inválido ou expirado.');
+            Flash::set('error', 'Link invalido ou expirado.');
             $this->redirect('/conta/esqueci-senha');
             return;
         }
@@ -126,11 +127,61 @@ final class SenhaController extends Controller
 
         Auth::logoutEmTodosDispositivos($registro['cliente_id']);
 
-        Flash::set('success', 'Senha alterada com sucesso! Faça login.');
+        Flash::set('success', 'Senha alterada com sucesso! Faca login.');
         $this->redirect('/login');
     }
 
     private function enviarEmailReset(string $email, ?string $nome, string $link): void
+    {
+        $driver = strtolower((string) ($_ENV['MAIL_DRIVER'] ?? 'smtp'));
+        $hasBrevo = trim((string) ($_ENV['BREVO_API_KEY'] ?? '')) !== '';
+
+        if ($driver === 'brevo' && $hasBrevo) {
+            $this->enviarEmailResetBrevo($email, $nome, $link);
+            return;
+        }
+
+        $this->enviarEmailResetSmtp($email, $nome, $link);
+    }
+
+    private function enviarEmailResetBrevo(string $email, ?string $nome, string $link): void
+    {
+        $apiKey = trim((string) ($_ENV['BREVO_API_KEY'] ?? ''));
+        if ($apiKey === '') {
+            throw new \RuntimeException('Brevo API key ausente.');
+        }
+
+        $fromAddress = (string) ($_ENV['BREVO_DEFAULT_FROM'] ?? $_ENV['MAIL_FROM_ADDRESS'] ?? '');
+        $fromName    = (string) ($_ENV['BREVO_DEFAULT_NAME'] ?? $_ENV['MAIL_FROM_NAME'] ?? 'Mercadinho');
+        if ($fromAddress === '') {
+            throw new \RuntimeException('Remetente Brevo nao configurado.');
+        }
+
+        $client = new BrevoClient($apiKey);
+        $body = $this->renderViewToString('emails/reset_senha', [
+            'nome'  => $nome,
+            'email' => $email,
+            'link'  => $link,
+        ]);
+
+        $payload = [
+            'sender' => [
+                'email' => $fromAddress,
+                'name'  => $fromName,
+            ],
+            'to' => [[
+                'email' => $email,
+                'name'  => $nome ?? '',
+            ]],
+            'subject' => 'Recuperacao de senha',
+            'htmlContent' => $body,
+            'textContent' => 'Para redefinir sua senha, acesse: ' . $link,
+        ];
+
+        $client->send($payload);
+    }
+
+    private function enviarEmailResetSmtp(string $email, ?string $nome, string $link): void
     {
         $mail = new PHPMailer(true);
         $mail->CharSet = 'UTF-8';
@@ -156,7 +207,7 @@ final class SenhaController extends Controller
         $mail->addAddress($email, $nome ?? '');
 
         $mail->isHTML(true);
-        $mail->Subject = 'Recuperação de senha';
+        $mail->Subject = 'Recuperacao de senha';
 
         $body = $this->renderViewToString('emails/reset_senha', [
             'nome'  => $nome,
@@ -185,7 +236,7 @@ final class SenhaController extends Controller
         if (Csrf::check($token)) {
             return true;
         }
-        Flash::set('error', 'Sessão expirada. Tente novamente.');
+        Flash::set('error', 'Sessao expirada. Tente novamente.');
         $this->redirect($redirectTo);
         return false;
     }
