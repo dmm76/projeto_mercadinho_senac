@@ -85,9 +85,13 @@ $router->post('/conta/enderecos/excluir',  [ContaController::class, 'excluirEnde
 $router->post('/conta/enderecos/principal', [ContaController::class, 'definirPrincipalQuery']);
 
 // PDV (tela e APIs)
-$router->get('/pdv',                 [PdvController::class, 'index']);
-$router->get('/pdv/api/produtos',    [PdvController::class, 'apiProdutos']); // ?q=, ?limit=
-$router->post('/pdv/api/venda',      [PdvController::class, 'apiVenda']);    // JSON
+$router->get ('/pdv',                               [PdvController::class, 'index']);
+$router->get ('/pdv/api/produtos',                  [PdvController::class, 'apiProdutos']);
+$router->post('/pdv/api/venda',                     [PdvController::class, 'apiCriarVenda']);
+$router->post('/pdv/api/venda/(\d+)/pagamentos',    [PdvController::class, 'apiAdicionarPagamento']);
+$router->post('/pdv/api/venda/(\d+)/finalizar',     [PdvController::class, 'apiFinalizarVenda']);
+$router->post('/pdv/api/venda/(\d+)/cancelar',      [PdvController::class, 'apiCancelarVendaVazia']);
+
 
 /**
  * LEGADO / ALIASES
