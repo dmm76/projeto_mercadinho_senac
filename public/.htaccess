@@ -1,5 +1,6 @@
 ﻿RewriteEngine On
-RewriteBase /
+RewriteBase /projeto_mercadinho_senac/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
+
