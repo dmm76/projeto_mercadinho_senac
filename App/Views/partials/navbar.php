@@ -5,6 +5,7 @@ use App\Core\Auth;
 
 $u = Auth::user();
 $isAdmin = $u && ($u['perfil'] === 'admin');
+$canPdv = $u && in_array($u['perfil'], ['admin', 'gerente', 'operador'], true);
 
 $cartCount = 0;
 $cart = $_SESSION['carrinho'] ?? [];
@@ -46,6 +47,13 @@ $_SESSION['cart_count'] = $cartCount;
             </a>
           </li>
         <?php endif; ?>
+        <?php if ($canPdv): ?>
+          <li class="nav-item">
+            <a href="<?= Url::to('/pdv') ?>" class="nav-link text-white <?= Url::is('/pdv') ? 'active' : '' ?>">
+              Frente de Caixa
+            </a>
+          </li>
+        <?php endif; ?>
       </ul>
 
       <!-- Direita -->
@@ -73,6 +81,9 @@ $_SESSION['cart_count'] = $cartCount;
               <?php if ($isAdmin): ?>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="<?= Url::to('/admin') ?>">Painel Admin</a></li>
+              <?php endif; ?>
+              <?php if ($canPdv): ?>
+                <li><a class="dropdown-item" href="<?= Url::to('/pdv') ?>">Frente de Caixa</a></li>
               <?php endif; ?>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="<?= Url::to('/logout') ?>">Sair</a></li>

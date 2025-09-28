@@ -56,16 +56,46 @@ final class Auth
     /** Conveniencia (opcional) */
     public static function isAdmin(): bool
     {
+        return self::hasPerfil(['admin']);
+    }
+
+    /**
+     * Verifica se o usuario logado possui um dos perfis informados.
+     * @param array<int,string>|string $perfis
+     */
+    public static function hasPerfil(array|string $perfis): bool
+    {
+        $lista = is_array($perfis) ? $perfis : [$perfis];
         $u = self::user();
-        return $u !== null && $u['perfil'] === 'admin';
+        return $u !== null && in_array($u['perfil'], $lista, true);
     }
 
     public static function requireAdmin(): void
     {
+        self::requirePerfil(['admin']);
+    }
+
+    /**
+     * Garante que o usuario logado pertence a um dos perfis permitidos.
+     * Quando $asNotFound for true e o usuario nao tiver permissao, devolve 404.
+     * @param array<int,string> $perfisPermitidos
+     * @return array{id:int,nome:string,email:string,perfil:string,ativo:int}
+     */
+    public static function requirePerfil(array $perfisPermitidos, bool $asNotFound = false): array
+    {
         $u = self::user();
-        if (!$u || $u['perfil'] !== 'admin') {
-            self::redirectToLogin('Faca login como administrador para continuar.', '/admin');
+        if (!$u) {
+            self::redirectToLogin('Faca login para continuar.', '/');
         }
+
+        if (!in_array($u['perfil'], $perfisPermitidos, true)) {
+            if ($asNotFound) {
+                self::abort404();
+            }
+            self::redirectToLogin('Voce nao tem permissao para acessar esta area.', '/');
+        }
+
+        return $u;
     }
 
     public static function requireLogin(string $message = 'Faca login para continuar.', string $fallback = '/'): void
@@ -277,5 +307,17 @@ final class Auth
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+    }
+
+    private static function abort404(): void
+    {
+        http_response_code(404);
+        $file = realpath(__DIR__ . '/../Views/errors/404.php');
+        if ($file && is_file($file)) {
+            require $file;
+        } else {
+            echo '404 Not Found';
+        }
+        exit;
     }
 }

@@ -5,32 +5,52 @@ declare(strict_types=1);
 namespace App\Controllers\Site;
 
 use App\DAO\Database;
+use App\Core\Auth;
 use Throwable;
 
 class PdvController
 {
     public function index(): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
+        $contexto = $this->obterContextoAberto();
+
         $v = new \App\Core\View();
-        $v->render('site/pdv/index', ['title' => 'PDV']);
+        $v->render('site/pdv/index', [
+            'title' => 'PDV',
+            'pdvTurno' => $contexto,
+        ]);
+    }
+
+    public function pagamentos(): void
+    {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
+        $contexto = $this->obterContextoAberto();
+
+        $v = new \App\Core\View();
+        $v->render('site/pdv/pagamentos', [
+            'title' => 'PDV - Pagamentos',
+            'pdvTurno' => $contexto,
+        ]);
     }
 
     /** GET /pdv/api/produtos?q=... */
     public function apiProdutos(): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
 
-        $qRaw  = trim((string)($_GET['q'] ?? ''));
-        $limit = max(1, min(30, (int)($_GET['limit'] ?? 10)));
+        $qRaw  = trim((string) ($_GET['q'] ?? ''));
+        $limit = max(1, min(30, (int) ($_GET['limit'] ?? 10)));
 
-        $pdo = \App\DAO\Database::getConnection();
+        $pdo = Database::getConnection();
 
         $q        = $qRaw;
-        $eq1      = $qRaw;            // para WHERE
-        $eq2      = $qRaw;            // para ORDER BY
+        $eq1      = $qRaw;
+        $eq2      = $qRaw;
         $skuLike  = $qRaw . '%';
         $nomeLike = '%' . $qRaw . '%';
-        $lim      = (int)$limit;
+        $lim      = (int) $limit;
 
         $sql = "
       SELECT
@@ -53,42 +73,59 @@ class PdvController
     ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':q',        $q);
-        $stmt->bindValue(':eq1',      $eq1);
-        $stmt->bindValue(':skuLike',  $skuLike);
+        $stmt->bindValue(':q', $q);
+        $stmt->bindValue(':eq1', $eq1);
+        $stmt->bindValue(':skuLike', $skuLike);
         $stmt->bindValue(':nomeLike', $nomeLike);
-        $stmt->bindValue(':eq2',      $eq2);
+        $stmt->bindValue(':eq2', $eq2);
         $stmt->execute();
 
         echo json_encode($stmt->fetchAll(\PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
     }
 
-
-
     /** POST /pdv/api/venda  -> abre venda e cria meta PDV */
     public function apiCriarVenda(): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
 
         $data       = json_decode(file_get_contents('php://input'), true) ?? [];
-        $clienteId  = (int)($data['cliente_id']  ?? 1);
-        $operadorId = (int)($data['operador_id'] ?? 1);
-        $terminalId = (int)($data['terminal_id'] ?? 1);
-        $turnoId    = (int)($data['turno_id']    ?? 1);
+        $clienteId  = (int) ($data['cliente_id'] ?? 1);
+        $operadorId = (int) ($data['operador_id'] ?? 0);
+        $terminalId = (int) ($data['terminal_id'] ?? 0);
+        $turnoId    = (int) ($data['turno_id'] ?? 0);
 
-        $pdo = \App\DAO\Database::getConnection();
+        $contextoAtivo = $this->obterContextoAberto();
+        if ($turnoId <= 0) {
+            $turnoId = (int) ($contextoAtivo['turno_id'] ?? 0);
+        }
+        if ($terminalId <= 0) {
+            $terminalId = (int) ($contextoAtivo['terminal_id'] ?? 0);
+        }
+        if ($operadorId <= 0) {
+            $operadorId = (int) ($contextoAtivo['operador_id'] ?? 0);
+        }
+
+        if ($turnoId <= 0 || $terminalId <= 0 || $operadorId <= 0) {
+            http_response_code(422);
+            echo json_encode([
+                'ok' => false,
+                'error' => 'Nenhum turno/caixa aberto para registrar vendas.',
+            ]);
+            return;
+        }
+
+        $pdo = Database::getConnection();
         $pdo->beginTransaction();
 
         try {
-            // cria pedido PDV básico
             $pdo->prepare("
             INSERT INTO pedido (cliente_id, status, canal, entrega, pagamento, subtotal, frete, desconto, total, troco)
             VALUES (:c,'novo','pdv','retirada','na_entrega',0,0,0,0,0)
         ")->execute([':c' => $clienteId]);
 
-            $pedidoId = (int)$pdo->lastInsertId();
+            $pedidoId = (int) $pdo->lastInsertId();
 
-            // meta PDV (necessária para a trigger do caixa)
             $pdo->prepare("
             INSERT INTO pdv_pedido_meta (pedido_id, terminal_id, turno_id, operador_id)
             VALUES (:p,:t,:u,:o)
@@ -96,28 +133,28 @@ class PdvController
                 ':p' => $pedidoId,
                 ':t' => $terminalId,
                 ':u' => $turnoId,
-                ':o' => $operadorId
+                ':o' => $operadorId,
             ]);
 
             $pdo->commit();
             http_response_code(201);
             echo json_encode(['ok' => true, 'id' => $pedidoId], JSON_UNESCAPED_UNICODE);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $pdo->rollBack();
             http_response_code(500);
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
     }
 
-
     /** POST /pdv/api/venda/{id}/pagamentos  body:{tipo,valor} */
     public function apiAdicionarPagamento($pedidoId): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
-        $pedidoId = (int)$pedidoId;
+        $pedidoId = (int) $pedidoId;
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
-        $tipo = (string)($data['tipo'] ?? '');
-        $valor = (float)($data['valor'] ?? 0);
+        $tipo = (string) ($data['tipo'] ?? '');
+        $valor = (float) ($data['valor'] ?? 0);
 
         if (!$pedidoId || !$tipo || $valor <= 0) {
             http_response_code(422);
@@ -127,13 +164,55 @@ class PdvController
 
         try {
             $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("
-              INSERT INTO pedido_pagamento (pedido_id, tipo, valor) VALUES (:p,:t,:v)
-            ");
+            $pdo->beginTransaction();
+
+            $metaStmt = $pdo->prepare(
+                'SELECT meta.turno_id, meta.terminal_id, meta.operador_id, turno.caixa_id
+                   FROM pdv_pedido_meta meta
+                   JOIN pdv_turno turno ON turno.id = meta.turno_id
+                  WHERE meta.pedido_id = :p
+                  LIMIT 1'
+            );
+            $metaStmt->execute([':p' => $pedidoId]);
+            $meta = $metaStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$meta || empty($meta['caixa_id'])) {
+                $pdo->rollBack();
+                http_response_code(422);
+                echo json_encode([
+                    'ok' => false,
+                    'error' => 'Nenhum turno/caixa aberto para este pedido.',
+                ]);
+                return;
+            }
+
+            $stmt = $pdo->prepare(
+                'INSERT INTO pedido_pagamento (pedido_id, tipo, valor) VALUES (:p,:t,:v)'
+            );
             $stmt->execute([':p' => $pedidoId, ':t' => $tipo, ':v' => $valor]);
-            // A trigger trg_pagamento_insere_movcaixa fará o lançamento em mov_caixa
-            echo json_encode(['ok' => true]);
+            $pagamentoId = (int) $pdo->lastInsertId();
+
+            $descricao = sprintf('Pagamento %s PDV #%d', ucfirst($tipo), $pedidoId);
+            $movStmt = $pdo->prepare(
+                'INSERT INTO mov_caixa (caixa_id, tipo, valor, descricao, pedido_id, terminal_id, turno_id)
+                 VALUES (:caixa, :tipo, :valor, :descricao, :pedido, :terminal, :turno)'
+            );
+            $movStmt->execute([
+                ':caixa' => (int) $meta['caixa_id'],
+                ':tipo' => 'entrada',
+                ':valor' => $valor,
+                ':descricao' => $descricao,
+                ':pedido' => $pedidoId,
+                ':terminal' => (int) $meta['terminal_id'],
+                ':turno' => (int) $meta['turno_id'],
+            ]);
+
+            $pdo->commit();
+            echo json_encode(['ok' => true, 'pagamento_id' => $pagamentoId]);
         } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             http_response_code(500);
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
@@ -142,11 +221,12 @@ class PdvController
     /** POST /pdv/api/venda/{id}/finalizar  body:{itens:[{produto_id,quantidade,preco_unit}], desconto} */
     public function apiFinalizarVenda($pedidoId): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
-        $pedidoId = (int)$pedidoId;
+        $pedidoId = (int) $pedidoId;
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         $itens = $data['itens'] ?? [];
-        $desconto = (float)($data['desconto'] ?? 0);
+        $desconto = (float) ($data['desconto'] ?? 0);
 
         if (!$pedidoId || empty($itens)) {
             http_response_code(422);
@@ -158,56 +238,83 @@ class PdvController
         $pdo->beginTransaction();
 
         try {
-            // limpa itens existentes (se reabrir e reenviar)
-            $pdo->prepare("DELETE FROM item_pedido WHERE pedido_id=:p")->execute([':p' => $pedidoId]);
+            $pdo->prepare('DELETE FROM item_pedido WHERE pedido_id=:p')->execute([':p' => $pedidoId]);
 
-            // itens + movimentação de estoque
-            $stmtItem = $pdo->prepare("
-              INSERT INTO item_pedido (pedido_id, produto_id, quantidade, preco_unit, desconto_unit)
-              VALUES (:p,:prod,:qtd,:preco,0)
-            ");
-            $stmtMov = $pdo->prepare("
-              INSERT INTO mov_estoque (produto_id, tipo, quantidade, origem, referencia_id, observacao)
-              VALUES (:prod,'saida',:qtd,'pedido',:pid,'Saida por venda')
-            ");
+            $stmtItem = $pdo->prepare(
+                'INSERT INTO item_pedido (pedido_id, produto_id, quantidade, preco_unit, desconto_unit)
+                 VALUES (:p,:prod,:qtd,:preco,0)'
+            );
+            $stmtMov = $pdo->prepare(
+                "INSERT INTO mov_estoque (produto_id, tipo, quantidade, origem, referencia_id, observacao)
+                 VALUES (:prod,'saida',:qtd,'pedido',:pid,'Saida por venda')"
+            );
 
             $subtotal = 0.0;
             foreach ($itens as $i) {
-                $q = (float)$i['quantidade'];
-                $pr = (float)$i['preco_unit'];
+                $q = (float) $i['quantidade'];
+                $pr = (float) $i['preco_unit'];
                 $subtotal += $q * $pr;
 
                 $stmtItem->execute([
                     ':p' => $pedidoId,
-                    ':prod' => (int)$i['produto_id'],
+                    ':prod' => (int) $i['produto_id'],
                     ':qtd' => $q,
-                    ':preco' => $pr
+                    ':preco' => $pr,
                 ]);
 
                 $stmtMov->execute([
-                    ':prod' => (int)$i['produto_id'],
+                    ':prod' => (int) $i['produto_id'],
                     ':qtd' => $q,
-                    ':pid' => $pedidoId
+                    ':pid' => $pedidoId,
                 ]);
             }
 
             $total = max(0, $subtotal - $desconto);
 
-            // atualiza totais e marca finalizado
-            $stmt = $pdo->prepare("
-              UPDATE pedido
-                 SET subtotal=:sub, desconto=:desc, total=:tot, status='finalizado'
-               WHERE id=:id
-            ");
+            $stmtPag = $pdo->prepare('SELECT COALESCE(SUM(valor),0) FROM pedido_pagamento WHERE pedido_id=:p');
+            $stmtPag->execute([':p' => $pedidoId]);
+            $totalPagamentos = (float) $stmtPag->fetchColumn();
+
+            if ($totalPagamentos + 0.00001 < $total) {
+                $pdo->rollBack();
+                http_response_code(422);
+                $faltante = max(0, $total - $totalPagamentos);
+                echo json_encode([
+                    'ok' => false,
+                    'error' => 'Pagamentos insuficientes',
+                    'faltante' => $faltante,
+                ], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+
+            $troco = max(0, $totalPagamentos - $total);
+
+            $stmt = $pdo->prepare(
+                "UPDATE pedido
+                    SET subtotal=:sub,
+                        desconto=:desc,
+                        total=:tot,
+                        troco=:troco,
+                        status='finalizado'
+                  WHERE id=:id"
+            );
             $stmt->execute([
                 ':sub' => $subtotal,
                 ':desc' => $desconto,
                 ':tot' => $total,
-                ':id' => $pedidoId
+                ':troco' => $troco,
+                ':id' => $pedidoId,
             ]);
 
             $pdo->commit();
-            echo json_encode(['ok' => true, 'pedido_id' => $pedidoId, 'subtotal' => $subtotal, 'total' => $total]);
+            echo json_encode([
+                'ok' => true,
+                'pedido_id' => $pedidoId,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'pagamentos' => $totalPagamentos,
+                'troco' => $troco,
+            ], JSON_UNESCAPED_UNICODE);
         } catch (Throwable $e) {
             $pdo->rollBack();
             http_response_code(500);
@@ -217,11 +324,11 @@ class PdvController
 
     public function apiCancelarVendaVazia(int $pedidoId): void
     {
+        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
         $pdo = Database::getConnection();
 
         try {
-            // só deleta se estiver "novo" e sem itens/pagamentos
             $sql = "
           SELECT p.id
             FROM pedido p
@@ -239,7 +346,6 @@ class PdvController
                 return;
             }
 
-            // apaga meta e pedido
             $pdo->beginTransaction();
             $pdo->prepare("DELETE FROM pdv_pedido_meta WHERE pedido_id=:p")->execute([':p' => $pedidoId]);
             $pdo->prepare("DELETE FROM pedido WHERE id=:p")->execute([':p' => $pedidoId]);
@@ -247,9 +353,33 @@ class PdvController
 
             echo json_encode(['ok' => true]);
         } catch (Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             http_response_code(500);
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
+    }
+
+    private function obterContextoAberto(): array
+    {
+        $pdo = Database::getConnection();
+        $sql = "
+            SELECT t.id AS turno_id,
+                   t.caixa_id,
+                   t.terminal_id,
+                   t.operador_id,
+                   term.nome AS terminal_nome
+              FROM pdv_turno t
+              JOIN pdv_terminal term ON term.id = t.terminal_id
+             WHERE t.status = 'aberto'
+             ORDER BY t.aberto_em DESC
+             LIMIT 1
+        ";
+
+        $stmt = $pdo->query($sql);
+        $turno = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : false;
+
+        return is_array($turno) ? $turno : [];
     }
 }

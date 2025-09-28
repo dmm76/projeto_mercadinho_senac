@@ -1,21 +1,14 @@
 <?php
-
 declare(strict_types=1);
 
 use App\Core\Router;
-use MercadoPago\SDK;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 /** 1) .env */
 $root = realpath(__DIR__ . '/..');
 $dotenv = Dotenv\Dotenv::createImmutable($root);
-$dotenv->safeLoad();
-
-$accessToken = trim((string)($_ENV['MP_ACCESS_TOKEN'] ?? ''));
-if ($accessToken !== '') {
-    SDK::setAccessToken($accessToken);
-}
+$dotenv->load();
 
 /** 2) Erros */
 if (($_ENV['APP_ENV'] ?? 'prod') === 'local') {
@@ -23,7 +16,7 @@ if (($_ENV['APP_ENV'] ?? 'prod') === 'local') {
     error_reporting(E_ALL);
 }
 
-/** 3) Sessao */
+/** 3) Sessão */
 session_start();
 
 /** 4) Router */
@@ -51,16 +44,14 @@ elseif ($scriptDir && $scriptDir !== '' && $scriptDir !== '/' && strpos($path, $
     $path = substr($path, strlen($scriptDir));
 }
 
-// Se sobrar um /index.php no inicio, remove
+// Se sobrar um /index.php no início, remove
 if (strpos($path, '/index.php') === 0) {
     $path = substr($path, strlen('/index.php'));
 }
 
 // Garante formato /...
 $path = '/' . ltrim($path, '/');
-if ($path === '') {
-    $path = '/';
-}
+if ($path === '') $path = '/';
 
 /** 6) Despacha a rota limpa */
 $router->dispatch($method, $path);

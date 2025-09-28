@@ -28,7 +28,7 @@
     <style>
         .carousel-img {
             object-fit: cover;
-            max-height: 380px;
+            max-height: 350px;
         }
     </style>
 

@@ -86,6 +86,7 @@ $router->post('/conta/enderecos/principal', [ContaController::class, 'definirPri
 
 // PDV (tela e APIs)
 $router->get ('/pdv',                               [PdvController::class, 'index']);
+$router->get ('/pdv/pagamentos',                    [PdvController::class, 'pagamentos']);
 $router->get ('/pdv/api/produtos',                  [PdvController::class, 'apiProdutos']);
 $router->post('/pdv/api/venda',                     [PdvController::class, 'apiCriarVenda']);
 $router->post('/pdv/api/venda/(\d+)/pagamentos',    [PdvController::class, 'apiAdicionarPagamento']);
