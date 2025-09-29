@@ -1,26 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 /** @var array $usuario autenticado, se o layout ja injeta isso */
+/** @var array $pdvTurno turno do PDV, se injetado pelo controller */
+
 $usuario = (isset($usuario) && is_array($usuario)) ? $usuario : [];
+$pdvTurno = (isset($pdvTurno) && is_array($pdvTurno)) ? $pdvTurno : [];
+
 $title = 'PDV - Frente de Caixa';
 
-$operadorId = isset($usuario['id']) ? (int) $usuario['id'] : 1;
-$operadorNome = isset($usuario['nome']) ? (string) $usuario['nome'] : 'Operador';
-$clienteId = isset($usuario['cliente_id']) ? (int) $usuario['cliente_id'] : 1;
-$terminalId = 1; // valor padrão caso não exista turno aberto
-$terminalNome = 'Caixa 01';
-$pdvTurno = isset($pdvTurno) && is_array($pdvTurno) ? $pdvTurno : [];
-$turnoId = isset($pdvTurno['turno_id']) ? (int) $pdvTurno['turno_id'] : 0;
-$caixaId = isset($pdvTurno['caixa_id']) ? (int) $pdvTurno['caixa_id'] : 0;
+/** Helper para env/escape/url (robusto em prod) */
+$e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 
-if (!empty($pdvTurno['terminal_id'])) {
-    $terminalId = (int) $pdvTurno['terminal_id'];
-}
-if (!empty($pdvTurno['terminal_nome'])) {
-    $terminalNome = (string) $pdvTurno['terminal_nome'];
-}
+/** Fallback para Url::to() caso a classe não esteja carregada (ex.: acesso direto à view sem autoload) */
+$urlTo = static function (string $path) {
+    $path = '/' . ltrim($path, '/');
+    if (class_exists(\App\Core\Url::class) && method_exists(\App\Core\Url::class, 'to')) {
+        try {
+            return \App\Core\Url::to($path);
+        } catch (\Throwable) {
+            // cai para fallback se algo der errado no helper
+        }
+    }
+    return $path; // fallback absoluto simples
+};
+
+/** Operador/terminal: defaults seguros */
+$operadorId   = isset($usuario['id']) ? (int)$usuario['id'] : 1;
+$operadorNome = isset($usuario['nome']) ? (string)$usuario['nome'] : 'Operador';
+$clienteId    = isset($usuario['cliente_id']) ? (int)$usuario['cliente_id'] : 1;
+
+$terminalId   = !empty($pdvTurno['terminal_id']) ? (int)$pdvTurno['terminal_id'] : 1;
+$terminalNome = !empty($pdvTurno['terminal_nome']) ? (string)$pdvTurno['terminal_nome'] : 'Caixa 01';
+$turnoId      = isset($pdvTurno['turno_id']) ? (int)$pdvTurno['turno_id'] : 0;
+$caixaId      = isset($pdvTurno['caixa_id']) ? (int)$pdvTurno['caixa_id'] : 0;
+
+/** Se vier operador no turno e não tiver no $usuario, usa o do turno */
 if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
-    $operadorId = (int) $pdvTurno['operador_id'];
+    $operadorId = (int)$pdvTurno['operador_id'];
 }
 ?>
 <!doctype html>
