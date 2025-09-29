@@ -12,26 +12,39 @@ class PdvController
 {
     public function index(): void
     {
-        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
-        $contexto = $this->obterContextoAberto();
+        try {
+            Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
+            $contexto = $this->obterContextoAberto();
 
-        $v = new \App\Core\View();
-        $v->render('site/pdv/index', [
-            'title' => 'PDV',
-            'pdvTurno' => $contexto,
-        ]);
+            $v = new \App\Core\View();
+            $v->render('site/pdv/index', [
+                'title'    => 'PDV',
+                'pdvTurno' => $contexto,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[PDV index] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            // Durante a depuração, evite 500 cego:
+            http_response_code(500);
+            echo 'Erro interno no PDV (index).';
+        }
     }
 
     public function pagamentos(): void
     {
-        Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
-        $contexto = $this->obterContextoAberto();
+        try {
+            Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
+            $contexto = $this->obterContextoAberto();
 
-        $v = new \App\Core\View();
-        $v->render('site/pdv/pagamentos', [
-            'title' => 'PDV - Pagamentos',
-            'pdvTurno' => $contexto,
-        ]);
+            $v = new \App\Core\View();
+            $v->render('site/pdv/pagamentos', [
+                'title'    => 'PDV - Pagamentos',
+                'pdvTurno' => $contexto,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[PDV pagamentos] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            http_response_code(500);
+            echo 'Erro interno no PDV (pagamentos).';
+        }
     }
 
     /** GET /pdv/api/produtos?q=... */
@@ -363,8 +376,9 @@ class PdvController
 
     private function obterContextoAberto(): array
     {
-        $pdo = Database::getConnection();
-        $sql = "
+        try {
+            $pdo = Database::getConnection();
+            $sql = "
             SELECT t.id AS turno_id,
                    t.caixa_id,
                    t.terminal_id,
@@ -376,10 +390,17 @@ class PdvController
              ORDER BY t.aberto_em DESC
              LIMIT 1
         ";
-
-        $stmt = $pdo->query($sql);
-        $turno = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : false;
-
-        return is_array($turno) ? $turno : [];
+            $stmt  = $pdo->query($sql);
+            $turno = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : false;
+            return is_array($turno) ? $turno : [];
+        } catch (\PDOException $e) {
+            // Se for "tabela não existe" (42S02), apenas retorna contexto vazio
+            if ($e->getCode() === '42S02') {
+                error_log('[PDV contexto] Tabela não encontrada: ' . $e->getMessage());
+                return [];
+            }
+            // Outros erros de DB sobem para serem logados no chamador
+            throw $e;
+        }
     }
 }
