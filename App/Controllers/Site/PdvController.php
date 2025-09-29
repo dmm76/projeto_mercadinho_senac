@@ -374,6 +374,45 @@ class PdvController
         }
     }
 
+    // public function abrirTurno(): void
+    // {
+    //     \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
+    //     header('Content-Type: application/json; charset=utf-8');
+
+    //     $data = json_decode(file_get_contents('php://input'), true) ?? [];
+    //     $terminalId = (int)($data['terminal_id'] ?? 1);
+    //     $operadorId = (int)($data['operador_id'] ?? 1);
+    //     $troco      = (float)($data['troco'] ?? 100.00);
+
+    //     $pdo = \App\DAO\Database::getConnection();
+    //     $pdo->beginTransaction();
+    //     try {
+    //         // garante terminal
+    //         $pdo->prepare("INSERT INTO pdv_terminal (id,nome)
+    //                    VALUES (:id,'Caixa 01')
+    //                    ON DUPLICATE KEY UPDATE nome=VALUES(nome)")
+    //             ->execute([':id' => $terminalId]);
+
+    //         // cria caixa aberto
+    //         $pdo->prepare("INSERT INTO caixa (nome, saldo_inicial, status, aberto_em)
+    //                    VALUES ('Caixa Loja', :troco, 'aberto', NOW())")
+    //             ->execute([':troco' => $troco]);
+    //         $caixaId = (int)$pdo->lastInsertId();
+
+    //         // abre turno
+    //         $pdo->prepare("INSERT INTO pdv_turno (caixa_id, terminal_id, operador_id, status, aberto_em)
+    //                    VALUES (:c,:t,:o,'aberto', NOW())")
+    //             ->execute([':c' => $caixaId, ':t' => $terminalId, ':o' => $operadorId]);
+
+    //         $pdo->commit();
+    //         echo json_encode(['ok' => true, 'caixa_id' => $caixaId], JSON_UNESCAPED_UNICODE);
+    //     } catch (\Throwable $e) {
+    //         if ($pdo->inTransaction()) $pdo->rollBack();
+    //         http_response_code(500);
+    //         echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+    //     }
+    // }
+
     public function abrirTurno(): void
     {
         \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
@@ -388,21 +427,32 @@ class PdvController
         $pdo->beginTransaction();
         try {
             // garante terminal
-            $pdo->prepare("INSERT INTO pdv_terminal (id,nome)
-                       VALUES (:id,'Caixa 01')
-                       ON DUPLICATE KEY UPDATE nome=VALUES(nome)")
-                ->execute([':id' => $terminalId]);
+            $pdo->prepare("
+            INSERT INTO pdv_terminal (id, nome)
+            VALUES (:id, 'Caixa 01')
+            ON DUPLICATE KEY UPDATE nome = VALUES(nome)
+        ")->execute([':id' => $terminalId]);
 
-            // cria caixa aberto
-            $pdo->prepare("INSERT INTO caixa (nome, saldo_inicial, status, aberto_em)
-                       VALUES ('Caixa Loja', :troco, 'aberto', NOW())")
-                ->execute([':troco' => $troco]);
+            // cria sessão de caixa (AGORA com operador_id e terminal_id)
+            $pdo->prepare("
+            INSERT INTO caixa (nome, operador_id, terminal_id, saldo_inicial, status, aberto_em)
+            VALUES ('Caixa Loja', :op, :term, :troco, 'aberto', NOW())
+        ")->execute([
+                ':op'   => $operadorId,
+                ':term' => $terminalId,
+                ':troco' => $troco,
+            ]);
             $caixaId = (int)$pdo->lastInsertId();
 
-            // abre turno
-            $pdo->prepare("INSERT INTO pdv_turno (caixa_id, terminal_id, operador_id, status, aberto_em)
-                       VALUES (:c,:t,:o,'aberto', NOW())")
-                ->execute([':c' => $caixaId, ':t' => $terminalId, ':o' => $operadorId]);
+            // abre turno vinculado ao caixa
+            $pdo->prepare("
+            INSERT INTO pdv_turno (caixa_id, terminal_id, operador_id, status, aberto_em)
+            VALUES (:c, :t, :o, 'aberto', NOW())
+        ")->execute([
+                ':c' => $caixaId,
+                ':t' => $terminalId,
+                ':o' => $operadorId,
+            ]);
 
             $pdo->commit();
             echo json_encode(['ok' => true, 'caixa_id' => $caixaId], JSON_UNESCAPED_UNICODE);
@@ -412,6 +462,7 @@ class PdvController
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
     }
+
 
     public function fecharTurno(): void
     {
