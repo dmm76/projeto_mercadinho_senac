@@ -9,9 +9,20 @@ body {
   min-height: 76vh;
 }
 
-.carousel-img {
+#carouselHero .carousel-item {
+  height: clamp(180px, 35vw, 420px);
+}
+
+/* .carousel-img {
   max-height: 500px;
   object-fit: cover;
+} */
+
+.carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-height: none; /* garante que não fica preso em 380/500px */
 }
 
 .produto-img {
@@ -23,7 +34,7 @@ body {
 
 p.truncar-3l {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  /* -webkit-line-clamp: 3; */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -53,4 +64,11 @@ label .text-dark {
 .accordion-button:not(.collapsed) {
   color: white;
   background-color: red;
+}
+
+
+@media (max-width: 576px) {
+  #carouselHero .carousel-item {
+    height: 220px;
+  }
 }

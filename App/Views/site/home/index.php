@@ -26,12 +26,12 @@
 
 
 
-    <style>
+    <!-- <style>
         .carousel-img {
             object-fit: cover;
             max-height: 380px;
         }
-    </style>
+    </style> -->
 
 </head>
 
