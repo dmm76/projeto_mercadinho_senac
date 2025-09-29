@@ -84,10 +84,17 @@ $router->post('/conta/enderecos/editar',   [ContaController::class, 'atualizarEn
 $router->post('/conta/enderecos/excluir',  [ContaController::class, 'excluirEnderecoQuery']);
 $router->post('/conta/enderecos/principal', [ContaController::class, 'definirPrincipalQuery']);
 
+// DEBUG: deve vir ANTES da rota real do PDV
+$router->get('/pdv', function () {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "PDV OK (rota)";
+});
+
+
 // PDV (tela e APIs)
-$router->get ('/pdv',                               [PdvController::class, 'index']);
-$router->get ('/pdv/pagamentos',                    [PdvController::class, 'pagamentos']);
-$router->get ('/pdv/api/produtos',                  [PdvController::class, 'apiProdutos']);
+$router->get('/pdv',                               [PdvController::class, 'index']);
+$router->get('/pdv/pagamentos',                    [PdvController::class, 'pagamentos']);
+$router->get('/pdv/api/produtos',                  [PdvController::class, 'apiProdutos']);
 $router->post('/pdv/api/venda',                     [PdvController::class, 'apiCriarVenda']);
 $router->post('/pdv/api/venda/(\d+)/pagamentos',    [PdvController::class, 'apiAdicionarPagamento']);
 $router->post('/pdv/api/venda/(\d+)/finalizar',     [PdvController::class, 'apiFinalizarVenda']);
@@ -141,4 +148,3 @@ $router->get('/health/autoload', function (): void {
         && class_exists(\App\Model\Usuario::class);
     echo $ok ? 'AUTOLOAD OK' : 'AUTOLOAD FAIL';
 });
-
