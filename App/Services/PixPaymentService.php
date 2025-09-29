@@ -174,22 +174,91 @@ final class PixPaymentService
      *
      * @return array<string,mixed>
      */
+    // public function fetchPayment(int $pedidoId): array
+    // {
+    //     $pdo = Database::getConnection();
+    //     $paymentId = $this->loadPixPaymentId($pdo, $pedidoId);
+    //     if ($paymentId <= 0) {
+    //         throw new \RuntimeException('Pagamento PIX nao encontrado para este pedido.');
+    //     }
+
+    //     $payment = Payment::find_by_id($paymentId);
+    //     if (!$payment) {
+    //         throw new \RuntimeException('Falha ao consultar pagamento PIX.');
+    //     }
+
+    //     $data = $this->mapPayment($payment);
+    //     $this->persistPayment($pdo, $pedidoId, $data);
+    //     return $data;
+    // }
     public function fetchPayment(int $pedidoId): array
     {
         $pdo = Database::getConnection();
+
         $paymentId = $this->loadPixPaymentId($pdo, $pedidoId);
         if ($paymentId <= 0) {
             throw new \RuntimeException('Pagamento PIX nao encontrado para este pedido.');
         }
 
-        $payment = Payment::find_by_id($paymentId);
-        if (!$payment) {
-            throw new \RuntimeException('Falha ao consultar pagamento PIX.');
+        $accessToken = $_ENV['MP_ACCESS_TOKEN'] ?? getenv('MP_ACCESS_TOKEN') ?? '';
+        if ($accessToken === '') {
+            throw new \RuntimeException('Access token ausente (MP_ACCESS_TOKEN).');
         }
 
-        $data = $this->mapPayment($payment);
-        $this->persistPayment($pdo, $pedidoId, $data);
-        return $data;
+        $url = 'https://api.mercadopago.com/v1/payments/' . urlencode((string)$paymentId);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_CUSTOMREQUEST  => 'GET',
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $accessToken,
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+
+        $resp = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if ($resp === false) {
+            throw new \RuntimeException('Falha de rede ao consultar Pix: ' . $err);
+        }
+
+        $body = json_decode($resp, true);
+        if (!is_array($body)) {
+            error_log('[PIX][fetch] resposta nao JSON: ' . $resp);
+            throw new \RuntimeException('Resposta inválida do gateway.');
+        }
+        if ($code >= 400) {
+            error_log('[PIX][fetch][HTTP ' . $code . '] ' . $resp);
+            $msg = $body['message'] ?? 'erro';
+            throw new \RuntimeException('Erro ao consultar Pix (HTTP ' . $code . '): ' . $msg);
+        }
+
+        // Mapeia como o resto do código espera
+        $poi = $body['point_of_interaction']['transaction_data'] ?? [];
+        $mapped = [
+            'id'                 => (int)($body['id'] ?? 0),
+            'status'             => (string)($body['status'] ?? ''),
+            'status_detail'      => (string)($body['status_detail'] ?? ''),
+            'description'        => (string)($body['description'] ?? ''),
+            'external_reference' => (string)($body['external_reference'] ?? ''),
+            'transaction_amount' => (float)($body['transaction_amount'] ?? 0),
+            'date_created'       => (string)($body['date_created'] ?? ''),
+            'date_approved'      => (string)($body['date_approved'] ?? ''),
+            'date_of_expiration' => (string)($body['date_of_expiration'] ?? ''),
+            'qr_code'            => is_array($poi) ? ($poi['qr_code'] ?? null) : null,
+            'qr_code_base64'     => is_array($poi) ? ($poi['qr_code_base64'] ?? null) : null,
+            'ticket_url'         => is_array($poi) ? ($poi['ticket_url'] ?? null) : null,
+        ];
+
+        // Sincroniza no banco e devolve
+        $this->persistPayment($pdo, $pedidoId, $mapped);
+        return $mapped;
     }
 
     /**
