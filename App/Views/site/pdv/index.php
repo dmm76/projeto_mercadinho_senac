@@ -58,7 +58,7 @@ if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
     data-terminal-id="<?= $terminalId ?>"
     data-terminal-nome="<?= htmlspecialchars($terminalNome, ENT_QUOTES, 'UTF-8') ?>"
     data-turno-id="<?= $turnoId ?: '' ?>" data-caixa-id="<?= $caixaId ?: '' ?>"
-    data-url-pagamentos="<?= \App\Core\Url::to('/pdv/pagamentos') ?>">
+    data-url-abrir="<?= $urlTo('/pdv/abrir') ?>" data-url-pagamentos="<?= \App\Core\Url::to('/pdv/pagamentos') ?>">
 
     <div class="pdv-wrap">
         <!-- Topbar -->
@@ -102,6 +102,11 @@ if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
                             venda <span class="kbd">F7</span></button>
                         <button class="btn btn-action btn-outline-secondary" type="button"
                             id="btnOrcamento">Orcamento</button>
+                        <?php if (empty($turnoId)): ?>
+                            <button class="btn btn-action btn-success" type="button" id="btnAbrirCaixa">
+                                Abrir caixa
+                            </button>
+                        <?php endif; ?>
                     </div>
                     <div class="panel-soft p-3">
                         <label class="field-label mb-1">Descricao / Codigo</label>
@@ -222,6 +227,37 @@ if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
             </div>
         </div>
     </div>
+
+    <!-- Modal abrir caixa -->
+    <div class="modal fade" id="modalAbrirCaixa" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content pdv-modal" id="formAbrirCaixa">
+                <div class="modal-header">
+                    <h5 class="modal-title">Abrir caixa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Troco inicial (R$)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="abrirTroco" value="100.00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Terminal</label>
+                        <input type="number" min="1" class="form-control" id="abrirTerminal"
+                            value="<?= (int)$terminalId ?>">
+                        <div class="form-text">Ex.: 1 para “Caixa 01”.</div>
+                    </div>
+                    <input type="hidden" id="abrirOperador" value="<?= (int)$operadorId ?>">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                    <button class="btn btn-primary" type="submit">Abrir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?= \App\Core\Url::to('/assets/site/pdv/pdv.js') ?>" defer></script>

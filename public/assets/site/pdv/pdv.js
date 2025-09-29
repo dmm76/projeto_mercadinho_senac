@@ -22,6 +22,10 @@ const vendaPadrao = () => ({
   desconto: 0,
 });
 
+const urlAbrirCaixa = document.body
+  ? document.body.dataset.urlAbrir || "/pdv/abrir"
+  : "/pdv/abrir";
+
 let venda = vendaPadrao();
 const historico = [];
 
@@ -195,6 +199,13 @@ const els = {
   pgResumoFalta: document.getElementById("pgResumoFalta"),
   pgResumoTroco: document.getElementById("pgResumoTroco"),
   pgResumoMensagem: document.getElementById("pgResumoMensagem"),
+  // ---- abrir caixa ----
+  btnAbrirCaixa: document.getElementById("btnAbrirCaixa"),
+  modalAbrirCaixa: document.getElementById("modalAbrirCaixa"),
+  formAbrirCaixa: document.getElementById("formAbrirCaixa"),
+  abrirTroco: document.getElementById("abrirTroco"),
+  abrirTerminal: document.getElementById("abrirTerminal"),
+  abrirOperador: document.getElementById("abrirOperador"),
 };
 
 const nomeTipoPagamento = {
@@ -248,7 +259,9 @@ async function garantirVendaCriada() {
   try {
     const ctx = contextoPdvAtual();
     if (!ctx.turnoId) {
-      alert('Nenhum turno aberto foi encontrado. Abra o caixa antes de iniciar vendas.');
+      alert(
+        "Nenhum turno aberto foi encontrado. Abra o caixa antes de iniciar vendas."
+      );
       return false;
     }
     const payload = {
@@ -685,6 +698,51 @@ function desenharPagamentos() {
   salvarVendaEmSessao();
 }
 
+function abrirCaixaMostrarModal() {
+  if (!els.modalAbrirCaixa) {
+    alert("Tela de abrir caixa não está disponível.");
+    return;
+  }
+  try {
+    const modal = new bootstrap.Modal(els.modalAbrirCaixa);
+    modal.show();
+  } catch {
+    alert("Bootstrap não carregou para abrir o modal.");
+  }
+}
+
+async function abrirCaixaEnviar() {
+  const troco =
+    parseFloat((els.abrirTroco && els.abrirTroco.value) || "0") || 0;
+  const terminal_id = parseInt(
+    (els.abrirTerminal && els.abrirTerminal.value) || "1",
+    10
+  );
+  const operador_id = parseInt(
+    (els.abrirOperador && els.abrirOperador.value) || "0",
+    10
+  );
+  try {
+    const resp = await fetch(urlAbrirCaixa, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ troco, terminal_id, operador_id }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.error || "Falha ao abrir caixa");
+    }
+    // fecha modal e recarrega para o backend injetar turno/caixa nos data-*
+    try {
+      const inst = bootstrap.Modal.getInstance(els.modalAbrirCaixa);
+      if (inst) inst.hide();
+    } catch {}
+    location.reload();
+  } catch (e) {
+    alert(e.message || "Erro ao abrir caixa.");
+  }
+}
+
 window.removerPagamento = (idx) => {
   if (!venda.pagamentos[idx]) return;
   const removido = venda.pagamentos[idx];
@@ -862,6 +920,17 @@ function configurarEventos() {
       });
     }
 
+    // ---- Abrir caixa ----
+    if (els.btnAbrirCaixa) {
+      els.btnAbrirCaixa.addEventListener("click", abrirCaixaMostrarModal);
+    }
+    if (els.formAbrirCaixa) {
+      els.formAbrirCaixa.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        abrirCaixaEnviar();
+      });
+    }
+
     const btnAplicarDesconto = document.getElementById("btnAplicarDesconto");
     if (btnAplicarDesconto) {
       btnAplicarDesconto.addEventListener("click", () => {
@@ -1006,6 +1075,13 @@ function inicializar() {
     atualizarRelogio();
     setInterval(atualizarRelogio, 1000);
     configurarEventos();
+
+    const ctx = contextoPdvAtual();
+    if (!ctx.turnoId && els.btnAbrirCaixa) {
+      // opcional: já sugere abrir o caixa
+      abrirCaixaMostrarModal();
+    }
+
     if (
       venda.id ||
       venda.itens.length ||

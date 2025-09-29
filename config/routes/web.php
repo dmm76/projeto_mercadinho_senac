@@ -93,6 +93,9 @@ $router->post('/pdv/api/venda/(\d+)/pagamentos',    [PdvController::class, 'apiA
 $router->post('/pdv/api/venda/(\d+)/finalizar',     [PdvController::class, 'apiFinalizarVenda']);
 $router->post('/pdv/api/venda/(\d+)/cancelar',      [PdvController::class, 'apiCancelarVendaVazia']);
 
+$router->post('/pdv/abrir',  [PdvController::class, 'abrirTurno']);
+
+$router->post('/pdv/fechar', [PdvController::class, 'fecharTurno']);
 
 /**
  * LEGADO / ALIASES

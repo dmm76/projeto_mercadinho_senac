@@ -374,6 +374,78 @@ class PdvController
         }
     }
 
+    public function abrirTurno(): void
+    {
+        \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
+        header('Content-Type: application/json; charset=utf-8');
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $terminalId = (int)($data['terminal_id'] ?? 1);
+        $operadorId = (int)($data['operador_id'] ?? 1);
+        $troco      = (float)($data['troco'] ?? 100.00);
+
+        $pdo = \App\DAO\Database::getConnection();
+        $pdo->beginTransaction();
+        try {
+            // garante terminal
+            $pdo->prepare("INSERT INTO pdv_terminal (id,nome)
+                       VALUES (:id,'Caixa 01')
+                       ON DUPLICATE KEY UPDATE nome=VALUES(nome)")
+                ->execute([':id' => $terminalId]);
+
+            // cria caixa aberto
+            $pdo->prepare("INSERT INTO caixa (nome, saldo_inicial, status, aberto_em)
+                       VALUES ('Caixa Loja', :troco, 'aberto', NOW())")
+                ->execute([':troco' => $troco]);
+            $caixaId = (int)$pdo->lastInsertId();
+
+            // abre turno
+            $pdo->prepare("INSERT INTO pdv_turno (caixa_id, terminal_id, operador_id, status, aberto_em)
+                       VALUES (:c,:t,:o,'aberto', NOW())")
+                ->execute([':c' => $caixaId, ':t' => $terminalId, ':o' => $operadorId]);
+
+            $pdo->commit();
+            echo json_encode(['ok' => true, 'caixa_id' => $caixaId], JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function fecharTurno(): void
+    {
+        \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
+        header('Content-Type: application/json; charset=utf-8');
+
+        $pdo = \App\DAO\Database::getConnection();
+        try {
+            // pega último turno aberto
+            $turno = $pdo->query("SELECT id, caixa_id FROM pdv_turno
+                              WHERE status='aberto'
+                              ORDER BY aberto_em DESC LIMIT 1")->fetch(\PDO::FETCH_ASSOC);
+            if (!$turno) {
+                echo json_encode(['ok' => true, 'msg' => 'já fechado']);
+                return;
+            }
+
+            $pdo->beginTransaction();
+            $pdo->prepare("UPDATE pdv_turno SET status='fechado', fechado_em=NOW() WHERE id=:id")
+                ->execute([':id' => $turno['id']]);
+            // opcional: marcar caixa como fechado
+            $pdo->prepare("UPDATE caixa SET status='fechado', fechado_em=NOW() WHERE id=:c")
+                ->execute([':c' => $turno['caixa_id']]);
+            $pdo->commit();
+
+            echo json_encode(['ok' => true]);
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+
     private function obterContextoAberto(): array
     {
         try {
