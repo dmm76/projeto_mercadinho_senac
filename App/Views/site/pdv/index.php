@@ -121,6 +121,12 @@ if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
                                 Abrir caixa
                             </button>
                         <?php endif; ?>
+                        <?php if (!empty($turnoId)): ?>
+                            <button class="btn btn-action btn-danger" type="button" id="btnFecharCaixa">
+                                Fechar caixa
+                            </button>
+                        <?php endif; ?>
+
                     </div>
                     <div class="panel-soft p-3">
                         <label class="field-label mb-1">Descricao / Codigo</label>

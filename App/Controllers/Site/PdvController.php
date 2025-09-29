@@ -482,6 +482,38 @@ class PdvController
 
 
 
+    // public function fecharTurno(): void
+    // {
+    //     \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
+    //     header('Content-Type: application/json; charset=utf-8');
+
+    //     $pdo = \App\DAO\Database::getConnection();
+    //     try {
+    //         // pega último turno aberto
+    //         $turno = $pdo->query("SELECT id, caixa_id FROM pdv_turno
+    //                           WHERE status='aberto'
+    //                           ORDER BY aberto_em DESC LIMIT 1")->fetch(\PDO::FETCH_ASSOC);
+    //         if (!$turno) {
+    //             echo json_encode(['ok' => true, 'msg' => 'já fechado']);
+    //             return;
+    //         }
+
+    //         $pdo->beginTransaction();
+    //         $pdo->prepare("UPDATE pdv_turno SET status='fechado', fechado_em=NOW() WHERE id=:id")
+    //             ->execute([':id' => $turno['id']]);
+    //         // opcional: marcar caixa como fechado
+    //         $pdo->prepare("UPDATE caixa SET status='fechado', fechado_em=NOW() WHERE id=:c")
+    //             ->execute([':c' => $turno['caixa_id']]);
+    //         $pdo->commit();
+
+    //         echo json_encode(['ok' => true]);
+    //     } catch (\Throwable $e) {
+    //         if ($pdo->inTransaction()) $pdo->rollBack();
+    //         http_response_code(500);
+    //         echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+    //     }
+    // }
+
     public function fecharTurno(): void
     {
         \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
@@ -489,30 +521,89 @@ class PdvController
 
         $pdo = \App\DAO\Database::getConnection();
         try {
-            // pega último turno aberto
-            $turno = $pdo->query("SELECT id, caixa_id FROM pdv_turno
-                              WHERE status='aberto'
-                              ORDER BY aberto_em DESC LIMIT 1")->fetch(\PDO::FETCH_ASSOC);
+            // último turno ABERTO
+            $turno = $pdo->query("
+            SELECT t.id, t.caixa_id, t.valor_inicial, t.aberto_em, t.terminal_id
+            FROM pdv_turno t
+            WHERE t.status='aberto'
+            ORDER BY t.aberto_em DESC
+            LIMIT 1
+        ")->fetch(\PDO::FETCH_ASSOC);
+
             if (!$turno) {
-                echo json_encode(['ok' => true, 'msg' => 'já fechado']);
+                echo json_encode(['ok' => true, 'msg' => 'Nenhum turno aberto.']);
                 return;
             }
 
+            // apuração do movimento do TURNO (usando turno_id para garantir corte perfeito)
+            $st = $pdo->prepare("
+            SELECT
+                COALESCE(SUM(CASE WHEN tipo='entrada' THEN valor ELSE 0 END),0) AS total_entradas,
+                COALESCE(SUM(CASE WHEN tipo='saida'   THEN valor ELSE 0 END),0) AS total_saidas
+            FROM mov_caixa
+            WHERE turno_id = :turno
+        ");
+            $st->execute([':turno' => (int)$turno['id']]);
+            $mov = $st->fetch(\PDO::FETCH_ASSOC) ?: ['total_entradas' => 0, 'total_saidas' => 0];
+
+            $totalEntradas = (float)$mov['total_entradas'];
+            $totalSaidas   = (float)$mov['total_saidas'];
+
+            // pega dados do caixa (saldo_inicial)
+            $cx = $pdo->prepare("SELECT saldo_inicial FROM caixa WHERE id=:c LIMIT 1");
+            $cx->execute([':c' => (int)$turno['caixa_id']]);
+            $caixa = $cx->fetch(\PDO::FETCH_ASSOC);
+            $saldoInicialCaixa = (float)($caixa['saldo_inicial'] ?? 0);
+
+            // cálculo
+            $valorTurno = ((float)$turno['valor_inicial']) + $totalEntradas - $totalSaidas;
+            $saldoFinalCaixa = $saldoInicialCaixa + $totalEntradas - $totalSaidas;
+
             $pdo->beginTransaction();
-            $pdo->prepare("UPDATE pdv_turno SET status='fechado', fechado_em=NOW() WHERE id=:id")
-                ->execute([':id' => $turno['id']]);
-            // opcional: marcar caixa como fechado
-            $pdo->prepare("UPDATE caixa SET status='fechado', fechado_em=NOW() WHERE id=:c")
-                ->execute([':c' => $turno['caixa_id']]);
+
+            // fecha TURNO
+            $pdo->prepare("
+            UPDATE pdv_turno
+               SET status='fechado',
+                   fechado_em=NOW(),
+                   valor_fechamento=:vf
+             WHERE id=:id
+        ")->execute([
+                ':vf' => $valorTurno,
+                ':id' => (int)$turno['id'],
+            ]);
+
+            // fecha CAIXA
+            $pdo->prepare("
+            UPDATE caixa
+               SET status='fechado',
+                   fechado_em=NOW(),
+                   saldo_final=:sf
+             WHERE id=:c
+        ")->execute([
+                ':sf' => $saldoFinalCaixa,
+                ':c'  => (int)$turno['caixa_id'],
+            ]);
+
             $pdo->commit();
 
-            echo json_encode(['ok' => true]);
+            echo json_encode([
+                'ok' => true,
+                'turno_id' => (int)$turno['id'],
+                'caixa_id' => (int)$turno['caixa_id'],
+                'valor_inicial_turno' => (float)$turno['valor_inicial'],
+                'entradas' => $totalEntradas,
+                'saidas'   => $totalSaidas,
+                'valor_fechamento_turno' => $valorTurno,
+                'saldo_final_caixa' => $saldoFinalCaixa,
+            ], JSON_UNESCAPED_UNICODE);
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             http_response_code(500);
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
     }
+
 
 
     private function obterContextoAberto(): array

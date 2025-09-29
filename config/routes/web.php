@@ -97,6 +97,7 @@ $router->post('/pdv/abrir',  [PdvController::class, 'abrirTurno']);
 
 $router->post('/pdv/fechar', [PdvController::class, 'fecharTurno']);
 
+
 /**
  * LEGADO / ALIASES
  */

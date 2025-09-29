@@ -107,7 +107,7 @@ function destinoPagamentos() {
       document.body.dataset.urlPagamentos ||
       (els.btnPagamentos
         ? els.btnPagamentos.dataset.href ||
-          els.btnPagamentos.getAttribute("href")
+        els.btnPagamentos.getAttribute("href")
         : null)
     );
   }
@@ -206,6 +206,8 @@ const els = {
   abrirTroco: document.getElementById("abrirTroco"),
   abrirTerminal: document.getElementById("abrirTerminal"),
   abrirOperador: document.getElementById("abrirOperador"),
+  btnFecharCaixa: document.getElementById("btnFecharCaixa"),
+
 };
 
 const nomeTipoPagamento = {
@@ -366,9 +368,8 @@ function atualizarTotais() {
   if (els.vTroco) els.vTroco.textContent = fmt(resumo.troco);
   if (els.resumoFalta) els.resumoFalta.textContent = fmt(resumo.falta);
   if (els.resumoItens) {
-    const textoQtd = `${formatarQuantidade(resumo.quantidade)} ${
-      resumo.quantidade === 1 ? "item" : "itens"
-    }`;
+    const textoQtd = `${formatarQuantidade(resumo.quantidade)} ${resumo.quantidade === 1 ? "item" : "itens"
+      }`;
     els.resumoItens.textContent = textoQtd;
   }
   atualizarResumoModal(resumo);
@@ -474,9 +475,8 @@ function redesenharItens() {
       <td>${item.nome}</td>
       <td class="text-end">${fmt(item.preco)}</td>
       <td class="text-end">
-        <input type="number" step="0.001" min="0.001" value="${
-          item.qtd
-        }" class="form-control form-control-sm"
+        <input type="number" step="0.001" min="0.001" value="${item.qtd
+      }" class="form-control form-control-sm"
                data-idx="${index}" oninput="alterarQtd(event)">
       </td>
       <td class="text-end">${fmt(item.subtotal)}</td>
@@ -498,8 +498,7 @@ window.alterarQtd = (evento) => {
   venda.itens[idx].subtotal = quantidade * venda.itens[idx].preco;
   registrarEvento(
     "ITEM",
-    `Quantidade ajustada (${formatarQuantidade(quantidade)}) em ${
-      venda.itens[idx].nome
+    `Quantidade ajustada (${formatarQuantidade(quantidade)}) em ${venda.itens[idx].nome
     }`
   );
   redesenharItens();
@@ -538,9 +537,8 @@ function mostrarResultados(lista) {
     const infoSku = produto.sku || "";
     const infoEan = produto.ean ? ` • ${produto.ean}` : "";
     anchor.innerHTML = `<div class="d-flex justify-content-between">
-        <div><strong>${
-          produto.nome
-        }</strong><div class="small text-secondary">${infoSku}${infoEan}</div></div>
+        <div><strong>${produto.nome
+      }</strong><div class="small text-secondary">${infoSku}${infoEan}</div></div>
         <div>${fmt(+produto.preco_venda || 0)}</div>
       </div>`;
     anchor.onclick = async (ev) => {
@@ -660,8 +658,7 @@ async function incluirPagamento(tipo, valor) {
   } catch (erro) {
     console.warn("Falha ao registrar pagamento", erro);
     alert(
-      `Nao foi possivel registrar o pagamento. Detalhes: ${
-        erro.message || erro
+      `Nao foi possivel registrar o pagamento. Detalhes: ${erro.message || erro
       }`
     );
     return;
@@ -794,7 +791,7 @@ async function abrirCaixaEnviar() {
     let data = {};
     try {
       data = await resp.json();
-    } catch {}
+    } catch { }
 
     if (!resp.ok || data.ok === false) {
       const msg =
@@ -808,7 +805,7 @@ async function abrirCaixaEnviar() {
     try {
       const inst = bootstrap.Modal.getInstance(els.modalAbrirCaixa);
       if (inst) inst.hide();
-    } catch {}
+    } catch { }
     location.reload();
   } catch (e) {
     alert(e.message || "Erro ao abrir caixa.");
@@ -1005,6 +1002,29 @@ function configurarEventos() {
       els.formAbrirCaixa.addEventListener("submit", (ev) => {
         ev.preventDefault();
         abrirCaixaEnviar();
+      });
+    }
+
+    // --- Fechar Caixa ----
+    if (els.btnFecharCaixa) {
+      els.btnFecharCaixa.addEventListener("click", async () => {
+        if (!confirm("Confirmar fechamento do turno/caixa atual?")) return;
+        try {
+          const resp = await fetch("/pdv/fechar", { method: "POST" });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok || !data.ok) {
+            throw new Error(data.error || "Falha ao fechar caixa");
+          }
+          alert(
+            `Caixa fechado!\n` +
+            `Entradas: ${fmt(data.entradas)}\n` +
+            `Saídas: ${fmt(data.saidas)}\n` +
+            `Saldo final do caixa: ${fmt(data.saldo_final_caixa)}`
+          );
+          location.reload();
+        } catch (e) {
+          alert(e.message || "Erro ao fechar caixa.");
+        }
       });
     }
 
