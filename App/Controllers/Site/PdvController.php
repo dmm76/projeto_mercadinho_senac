@@ -15,11 +15,13 @@ class PdvController
         try {
             Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
             $contexto = $this->obterContextoAberto();
+            $u = \App\Core\Auth::user();
 
             $v = new \App\Core\View();
             $v->render('site/pdv/index', [
                 'title'    => 'PDV',
                 'pdvTurno' => $contexto,
+                'usuario'  => $u ?: [],
             ]);
         } catch (\Throwable $e) {
             error_log('[PDV index] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
@@ -34,11 +36,13 @@ class PdvController
         try {
             Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
             $contexto = $this->obterContextoAberto();
+            $u = \App\Core\Auth::user();
 
             $v = new \App\Core\View();
             $v->render('site/pdv/pagamentos', [
                 'title'    => 'PDV - Pagamentos',
                 'pdvTurno' => $contexto,
+                'usuario'  => $u ?: [],
             ]);
         } catch (\Throwable $e) {
             error_log('[PDV pagamentos] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
