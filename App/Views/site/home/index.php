@@ -78,33 +78,33 @@
 
                         <div class="carousel-item active">
 
-                            <img src="<?= $ASSETS ?>/banner.webp" class="d-block w-100 carousel-img" alt="Promocoes">
+                            <img src="<?= $ASSETS ?>/bannerc.jpg" class="d-block w-100 carousel-img" alt="Promocoes">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/banca.webp" class="d-block w-100 carousel-img" alt="Frutas frescas">
+                            <img src="<?= $ASSETS ?>/bancac.jpg" class="d-block w-100 carousel-img" alt="Frutas frescas">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/higiene.webp" class="d-block w-100 carousel-img"
+                            <img src="<?= $ASSETS ?>/higienec.jpg" class="d-block w-100 carousel-img"
                                 alt="Produtos de Higiene">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/paes.webp" class="d-block w-100 carousel-img"
+                            <img src="<?= $ASSETS ?>/paesc.jpg" class="d-block w-100 carousel-img"
                                 alt="Pães fresquinhos">
 
                         </div>
 
                         <div class="carousel-item">
 
-                            <img src="<?= $ASSETS ?>/compras.webp" class="d-block w-100 carousel-img" alt="Promocoes">
+                            <img src="<?= $ASSETS ?>/comprasc.jpg" class="d-block w-100 carousel-img" alt="Promocoes">
 
                         </div>
 
