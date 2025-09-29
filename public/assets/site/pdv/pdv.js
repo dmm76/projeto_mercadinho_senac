@@ -711,28 +711,100 @@ function abrirCaixaMostrarModal() {
   }
 }
 
+// async function abrirCaixaEnviar() {
+//   const troco =
+//     parseFloat((els.abrirTroco && els.abrirTroco.value) || "0") || 0;
+//   const terminal_id = parseInt(
+//     (els.abrirTerminal && els.abrirTerminal.value) || "1",
+//     10
+//   );
+//   const operador_id = parseInt(
+//     (els.abrirOperador && els.abrirOperador.value) || "0",
+//     10
+//   );
+//   try {
+//     const resp = await fetch(urlAbrirCaixa, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ troco, terminal_id, operador_id }),
+//     });
+//     const data = await resp.json().catch(() => ({}));
+//     if (!resp.ok || !data.ok) {
+//       throw new Error(data.error || "Falha ao abrir caixa");
+//     }
+//     // fecha modal e recarrega para o backend injetar turno/caixa nos data-*
+//     try {
+//       const inst = bootstrap.Modal.getInstance(els.modalAbrirCaixa);
+//       if (inst) inst.hide();
+//     } catch {}
+//     location.reload();
+//   } catch (e) {
+//     alert(e.message || "Erro ao abrir caixa.");
+//   }
+// }
+
 async function abrirCaixaEnviar() {
-  const troco =
-    parseFloat((els.abrirTroco && els.abrirTroco.value) || "0") || 0;
+  // trava o botão pra evitar duplo envio
+  const btn = els.formAbrirCaixa?.querySelector('button[type="submit"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Abrindo...";
+  }
+
+  // lê valores e faz fallback seguro
+  const troco = Math.max(0, parseFloat(els.abrirTroco?.value || "0") || 0);
+
+  // tenta usar o que veio do modal; se não houver, usa os data-* do <body>
   const terminal_id = parseInt(
-    (els.abrirTerminal && els.abrirTerminal.value) || "1",
+    els.abrirTerminal?.value || document.body?.dataset.terminalId || "1",
     10
   );
+
   const operador_id = parseInt(
-    (els.abrirOperador && els.abrirOperador.value) || "0",
+    els.abrirOperador?.value || document.body?.dataset.operadorId || "0",
     10
   );
+
+  // validação rápida antes do fetch
+  if (!Number.isInteger(terminal_id) || terminal_id <= 0) {
+    alert("Terminal inválido.");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Abrir";
+    }
+    return;
+  }
+  if (!Number.isInteger(operador_id) || operador_id <= 0) {
+    alert("Operador inválido.");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Abrir";
+    }
+    return;
+  }
+
   try {
     const resp = await fetch(urlAbrirCaixa, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ troco, terminal_id, operador_id }),
     });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok || !data.ok) {
-      throw new Error(data.error || "Falha ao abrir caixa");
+
+    // tenta ler JSON mesmo em erro 4xx/5xx pra extrair a msg do backend
+    let data = {};
+    try {
+      data = await resp.json();
+    } catch {}
+
+    if (!resp.ok || data.ok === false) {
+      const msg =
+        data && data.error
+          ? data.error
+          : `Falha ao abrir caixa (HTTP ${resp.status})`;
+      throw new Error(msg);
     }
-    // fecha modal e recarrega para o backend injetar turno/caixa nos data-*
+
+    // fecha modal e recarrega pra injetar turno/caixa nos data-*
     try {
       const inst = bootstrap.Modal.getInstance(els.modalAbrirCaixa);
       if (inst) inst.hide();
@@ -740,6 +812,11 @@ async function abrirCaixaEnviar() {
     location.reload();
   } catch (e) {
     alert(e.message || "Erro ao abrir caixa.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Abrir";
+    }
   }
 }
 

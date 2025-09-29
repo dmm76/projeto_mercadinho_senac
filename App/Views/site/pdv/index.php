@@ -13,6 +13,18 @@ $title = 'PDV - Frente de Caixa';
 /** Helper para env/escape/url (robusto em prod) */
 $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 
+$urlTo = static function (string $path) {
+    $path = '/' . ltrim($path, '/');
+    if (class_exists(\App\Core\Url::class) && method_exists(\App\Core\Url::class, 'to')) {
+        try {
+            return \App\Core\Url::to($path);
+        } catch (\Throwable) {
+        }
+    }
+    return $path;
+};
+$homeUrl = $urlTo('/');
+
 /** Fallback para Url::to() caso a classe não esteja carregada (ex.: acesso direto à view sem autoload) */
 $urlTo = static function (string $path) {
     $path = '/' . ltrim($path, '/');
@@ -66,7 +78,9 @@ if (!empty($pdvTurno['operador_id']) && empty($usuario['id'])) {
             <div class="container-fluid">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
                     <div class="d-flex align-items-baseline gap-2">
-                        <div class="nav-brand-title">Mercado Borba Gato</div>
+                        <div class="nav-brand-title">
+                            <a href="<?= $homeUrl ?>" title="Voltar para o Mercadinho">Mercado Borba Gato</a>
+                        </div>
                         <span class="nav-brand-sub">&bull; Frente de Caixa</span>
                     </div>
                     <div class="d-flex flex-wrap align-items-center gap-3 text-end">

@@ -415,13 +415,26 @@ class PdvController
 
     public function abrirTurno(): void
     {
-        \App\Core\Auth::requirePerfil(['admin', 'gerente'], true);
+        \App\Core\Auth::requirePerfil(['admin', 'gerente', 'operador'], true);
         header('Content-Type: application/json; charset=utf-8');
 
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
+
         $terminalId = (int)($data['terminal_id'] ?? 1);
-        $operadorId = (int)($data['operador_id'] ?? 1);
+        $operadorId = (int)($data['operador_id'] ?? 0);
         $troco      = (float)($data['troco'] ?? 100.00);
+
+        // fallback: se não veio no payload, usa usuário logado
+        if ($operadorId <= 0) {
+            $user = \App\Core\Auth::user() ?? [];
+            $operadorId = (int)($user['id'] ?? 0);
+        }
+
+        if ($operadorId <= 0) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => 'Operador inválido.']);
+            return;
+        }
 
         $pdo = \App\DAO\Database::getConnection();
         $pdo->beginTransaction();
@@ -433,18 +446,18 @@ class PdvController
             ON DUPLICATE KEY UPDATE nome = VALUES(nome)
         ")->execute([':id' => $terminalId]);
 
-            // cria sessão de caixa (AGORA com operador_id e terminal_id)
+            // >>> INSERE caixa com operador_id e terminal_id <<<
             $pdo->prepare("
-            INSERT INTO caixa (nome, operador_id, terminal_id, saldo_inicial, status, aberto_em)
-            VALUES ('Caixa Loja', :op, :term, :troco, 'aberto', NOW())
+            INSERT INTO caixa (nome, terminal_id, operador_id, saldo_inicial, status, aberto_em)
+            VALUES ('Caixa Loja', :terminal, :operador, :troco, 'aberto', NOW())
         ")->execute([
-                ':op'   => $operadorId,
-                ':term' => $terminalId,
-                ':troco' => $troco,
+                ':terminal' => $terminalId,
+                ':operador' => $operadorId,
+                ':troco'    => $troco,
             ]);
             $caixaId = (int)$pdo->lastInsertId();
 
-            // abre turno vinculado ao caixa
+            // abre turno
             $pdo->prepare("
             INSERT INTO pdv_turno (caixa_id, terminal_id, operador_id, status, aberto_em)
             VALUES (:c, :t, :o, 'aberto', NOW())
@@ -462,6 +475,7 @@ class PdvController
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
     }
+
 
 
     public function fecharTurno(): void
